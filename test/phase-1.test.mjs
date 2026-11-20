@@ -40,7 +40,7 @@ const emptyIsland = { random_motes: false, random_shades: false };
 
 test('manifest khai đúng tuning dùng trong gameplay', () => {
   const manifest = JSON.parse(readFileSync(join(root, 'game.contract.json'), 'utf8'));
-  assert.equal(manifest.contract_version, '1.1');
+  assert.equal(manifest.contract_version, '1.2');
   assert.deepEqual(manifest.tuning, tuning);
   assert.equal(snapshot(newGame()).lanterns.length, tuning.lantern_count_night1);
 });
@@ -81,7 +81,7 @@ test('nạp từng phần, giữ nút không lặp, biên nhặt XZ và độ ca
   assert.deepEqual(check.events.map(({ tick, name, data }) => [tick, name, data]), [
     [1, 'mote_picked', { carried: 2 }], [1, 'deposit', { lantern_id: 'L1', amount: 2, deposited: cost-1 }],
     [2, 'mote_picked', { carried: 1 }], [4, 'deposit', { lantern_id: 'L1', amount: 1, deposited: cost }],
-    [4, 'lantern_lit', { lantern_id: 'L1' }],
+    [4, 'lantern_lit', { lantern_id: 'L1', relight:false }],
   ]);
   assert.equal(check.snapshots.at(-1).lanterns[0].lit, true);
   const capacity = newGame(0, { ...emptyIsland, player: { carried: tuning.carry_capacity - 1 }, motes: [[0, 0, 0], [0, 0, 0]] });
@@ -131,9 +131,9 @@ test('vùng an toàn của đèn sáng, cooldown pulse và trạng thái khởi 
   assert.equal(pulse.player.carried, 0);
 });
 
-test('thắp đèn cuối Đêm 1, tính điểm theo Contract 1.1 và JSONL tất định', () => {
+test('thắp đèn cuối Đêm 1 vẫn chạy tới bình minh, điểm Contract 1.2 và JSONL tất định', () => {
   const inputs=jsonFile({frames:[{tick:0,interact:true}]});
-  const scenario=jsonFile({...emptyIsland,player:{pos:[0,0,25],carried:tuning.lantern_cost},
+  const scenario=jsonFile({...emptyIsland,time_left_s:1,player:{pos:[0,0,25],carried:tuning.lantern_cost},
     lanterns:['L2','L3','L4','L5'].map((id)=>({id,lit:true}))});
   const first = run(60, '--inputs', inputs,'--scenario',scenario);
   const second = run(60, '--inputs', inputs,'--scenario',scenario);
@@ -142,11 +142,12 @@ test('thắp đèn cuối Đêm 1, tính điểm theo Contract 1.1 và JSONL t�
   assert.equal(first.bytes, second.bytes);
   assert.equal(first.snapshots[0].score, 0);
   assert.deepEqual(first.events.filter(({ name }) => name === 'lantern_lit').map(({ data }) => data.lantern_id), ['L1']);
-  assert.deepEqual(first.events.at(-1).data, { result: 'won', reason: 'all_lit' });
+  assert.equal(first.snapshots[1].state,'playing');
+  assert.deepEqual(first.events.at(-1).data, { result: 'won', reason: 'dawn_survived' });
   const points = tuning.lantern_cost * tuning.score.per_mote
-    + tuning.score.per_lantern + Math.floor(tuning.night1_duration_s - 1 / tickRate) * tuning.score.per_second_left
+    + tuning.score.per_lantern + 5*(tuning.score.per_dawn_lantern+99)
     + tuning.flames * tuning.score.per_flame_left;
-  assert.deepEqual(first.end, { type: 'end', ticks: 1, state: 'won', score: points });
+  assert.deepEqual(first.end, { type: 'end', ticks: 60, state: 'won', score: points });
 });
 
 test('bình minh, snapshot mặc định và mã thoát cho JSON sai', () => {

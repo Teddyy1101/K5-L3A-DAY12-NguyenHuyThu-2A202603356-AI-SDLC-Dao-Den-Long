@@ -1,4 +1,5 @@
 const cues = {
+  wood_cast:[140,210,285], wood_hit:[95,155,235],
   mote_picked:[740,980], lantern_lit:[440,660,880], pulse:[215,450], player_hit:[190,105],
   jump:[260,420], dash:[150,460], won:[390,520,660,780], lost:[330,220,165],
   shade_spawned:[135,116], countdown:[540], wind_warning:[295,265,223], charm_picked:[520,780,1040],

@@ -9,6 +9,7 @@ const routes = new Map([
   ['/src/core.mjs', ['./core.mjs', 'text/javascript']],
   ['/src/nights.mjs', ['./nights.mjs', 'text/javascript']],
   ['/src/audio.mjs', ['./audio.mjs', 'text/javascript']],
+  ['/src/wood.mjs', ['./wood.mjs', 'text/javascript']],
 ]);
 
 const port = Number(process.env.GAME_PORT ?? 3000);

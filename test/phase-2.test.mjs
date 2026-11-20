@@ -192,11 +192,13 @@ test('hit tạo vành đom đóm rơi, Bóng Mực lùi 2 m và đèn mới sán
   assert.equal(lamp.snapshots[30].shades[0].pos[0],6.005);
 });
 
-test('đèn cuối thắng đúng tick bình minh ở cả ba Đêm, hết Ngọn Lửa ưu tiên thua',()=>{
+test('nạp đèn ở tick bình minh đạt đúng ngưỡng cả ba Đêm, hết Ngọn Lửa ưu tiên thua',()=>{
   for (const night of [1,2,3]) {
-    const lanterns=nights[night].lanterns.slice(1).map((_,index)=>({id:'L'+(index+2),lit:true}));
+    const threshold=Math.ceil(nights[night].lanterns.length*tuning.win_ratio);
+    const lanterns=nights[night].lanterns.slice(1,threshold).map((_,index)=>({id:'L'+(index+2),lit:true}));
     const scene={...quiet,time_left_s:1/tickRate,player:{pos:nights[night].lanterns[0],carried:10},lanterns};
-    assert.equal(run(night,5,scene,[{tick:0,interact:true}]).end.state,'won');
+    assert.equal(run(night,5,scene,[{tick:0,interact:true}]).events.at(-1).data.reason,'dawn_survived');
+    assert.equal(run(night,5,scene).events.at(-1).data.reason,'dawn');
     const dead=run(night,5,{...scene,player:{...scene.player,flames:0}},[{tick:0,interact:true}]);
     assert.equal(dead.events.at(-1).data.reason,'no_flames');
   }

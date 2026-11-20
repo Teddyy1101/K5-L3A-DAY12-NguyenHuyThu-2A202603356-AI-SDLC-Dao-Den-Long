@@ -17,9 +17,9 @@
         <p id="night-name">Đêm 1 · Đảo Bến</p>
       </header>
       <dl class="stats" aria-label="Trạng thái trò chơi">
-        <div><dt><span class="stat-icon lantern-icon" aria-hidden="true"></span> Đèn</dt><dd id="lit">0 / 5</dd></div>
+        <div><dt><span class="stat-icon lantern-icon" aria-hidden="true"></span> Đèn</dt><dd id="lit">0 / 5</dd><small id="dawn-target">Cần giữ 3</small></div>
         <div><dt><span class="heart" aria-hidden="true">♥</span> Ngọn Lửa</dt><dd id="health">3 / 3</dd></div>
-        <div><dt>Còn lại</dt><dd id="timer">5:00</dd></div>
+        <div><dt>Còn lại</dt><dd id="timer">4:00</dd></div>
         <div><dt>Điểm</dt><dd id="score">0</dd></div>
       </dl>
       <p class="prompt" id="prompt" role="status" hidden></p>
@@ -28,6 +28,7 @@
       <div class="abilities" aria-label="Kỹ năng">
         <span><kbd>Shift</kbd><span id="dash-cd">Lướt</span></span>
         <span><kbd>Q</kbd><span id="pulse-cd">Tỏa sáng</span></span>
+        <span><kbd>1</kbd><span id="wood-cd">Mộc Độn</span></span>
         <span id="charm-status" hidden></span>
       </div>
       <footer class="controls" aria-label="Điều khiển">
@@ -54,6 +55,7 @@
           <h2 id="stage-title">Đảo Đèn Lồng</h2>
           <p id="stage-text">Cùng Mây thắp đèn qua ba đêm.</p>
           <button id="stage-action" type="button">Bắt đầu</button>
+          <button id="stage-switch" type="button">Chọn Đêm</button>
           <button id="stage-settings" type="button">Cài đặt</button>
         </div>
       </section>
@@ -64,8 +66,20 @@
           <div class="menu-actions">
             <button id="resume" type="button">Tiếp tục</button>
             <button id="pause-replay" type="button">Chơi lại Đêm</button>
+            <button id="pause-switch" type="button">Chuyển Đêm</button>
             <button id="pause-settings" type="button">Cài đặt</button>
             <button id="pause-menu" type="button">Về menu</button>
+          </div>
+        </div>
+      </section>
+      <section id="night-picker" class="result" aria-labelledby="picker-title" hidden>
+        <div class="result-card">
+          <h2 id="picker-title">Chọn Đêm</h2>
+          <div class="menu-actions">
+            <button id="choose-night-1" type="button">Đêm 1 · Đảo Bến</button>
+            <button id="choose-night-2" type="button">Đêm 2 · Đôi Đảo Tre</button>
+            <button id="choose-night-3" type="button">Đêm 3 · Đảo Tháp Chuông</button>
+            <button id="picker-close" type="button">Quay lại</button>
           </div>
         </div>
       </section>
@@ -74,6 +88,11 @@
           <h2 id="settings-title">Cài đặt</h2>
           <label>Âm lượng <input id="volume" type="range" min="0" max="100" value="45"></label>
           <label>Độ nhạy chuột <input id="sensitivity" type="range" min="10" max="200" value="75"></label>
+          <label>Bảng màu dễ phân biệt <input id="accessible-palette" type="checkbox"></label>
+          <details id="wood-settings">
+            <summary>Mộc Độn · hiệu ứng</summary>
+            <div id="wood-options"></div>
+          </details>
           <button id="settings-close" type="button">Quay lại</button>
         </div>
       </section>

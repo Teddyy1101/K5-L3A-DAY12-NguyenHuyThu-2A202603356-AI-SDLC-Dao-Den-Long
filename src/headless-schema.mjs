@@ -1,4 +1,4 @@
-import { drifterStates, shadeStates, tuning } from './core.mjs';
+import { capacityFor, drifterStates, shadeStates, tuning } from './core.mjs';
 import { nights } from './nights.mjs';
 
 function requireValue(condition, label, expected) {
@@ -50,6 +50,7 @@ export function parseInputs(data) {
 
 export function parseScenario(data, night = 1) {
   object(data, 'scenario');
+  const lanternIds = nights[night].lanterns.map((_,index) => 'L'+(index+1));
   for (const flag of ['random_motes', 'random_shades', 'random_drifters', 'wind_enabled']) {
     if (flag in data) boolean(data[flag], flag);
   }
@@ -60,7 +61,8 @@ export function parseScenario(data, night = 1) {
     const player = data.player;
     object(player, 'player');
     if ('pos' in player) position(player.pos, 'player.pos');
-    if ('carried' in player) range(player.carried, 'player.carried', tuning.carry_capacity);
+    if ('successful_lights' in player) range(player.successful_lights,'player.successful_lights',Number.MAX_SAFE_INTEGER);
+    if ('carried' in player) range(player.carried, 'player.carried', capacityFor(player.successful_lights ?? 0));
     if ('flames' in player) range(player.flames, 'player.flames', tuning.flames);
     for (const field of ['invuln_ticks','dash_cd_ticks','pulse_cd_ticks','charm_ticks']) {
       if (field in player) range(player[field], 'player.'+field, Number.MAX_SAFE_INTEGER);
@@ -80,6 +82,9 @@ export function parseScenario(data, night = 1) {
         ids.add(entry.id);
       }
       if ('state' in entry && collection === 'shades') requireValue(shadeStates.includes(entry.state),label+'.state','trạng thái Bóng Mực hợp lệ');
+      if ('target_lantern_id' in entry && collection === 'shades') {
+        requireValue(lanternIds.includes(entry.target_lantern_id),label+'.target_lantern_id','ID đèn thuộc Đêm đã chọn');
+      }
       if ('state' in entry && collection === 'drifters') requireValue(drifterStates.includes(entry.state),label+'.state','trạng thái Gió Lạc hợp lệ');
       if ('kind' in entry && collection === 'motes') requireValue(['random','dropped'].includes(entry.kind),label+'.kind','random hoặc dropped');
       if ('available' in entry && collection === 'charms') boolean(entry.available,label+'.available');
@@ -91,14 +96,18 @@ export function parseScenario(data, night = 1) {
   }
   if ('lanterns' in data) {
     array(data.lanterns, 'lanterns');
-    const ids = new Set(nights[night].lanterns.map((_,index) => 'L'+(index+1)));
+    const ids = new Set(lanternIds);
     for (const [index, lantern] of data.lanterns.entries()) {
       const label = `lanterns[${index}]`;
       object(lantern, label);
       requireValue(ids.delete(lantern.id), `${label}.id`, 'ID đèn duy nhất thuộc Đêm đã chọn');
       if ('pos' in lantern) position(lantern.pos, `${label}.pos`);
-      if ('deposited' in lantern) range(lantern.deposited, `${label}.deposited`, tuning.lantern_cost);
       if ('lit' in lantern) boolean(lantern.lit, `${label}.lit`);
+      if ('ever_lit' in lantern) boolean(lantern.ever_lit, label+'.ever_lit');
+      if ('deposited' in lantern) range(lantern.deposited, label+'.deposited',
+        lantern.ever_lit && lantern.lit===false ? tuning.relight_cost : tuning.lantern_cost);
+      if ('fuel' in lantern) requireValue(Number.isFinite(lantern.fuel) && lantern.fuel>=0 && lantern.fuel<=tuning.fuel_max,
+        label+'.fuel','số từ 0 đến '+tuning.fuel_max);
     }
   }
   return data;

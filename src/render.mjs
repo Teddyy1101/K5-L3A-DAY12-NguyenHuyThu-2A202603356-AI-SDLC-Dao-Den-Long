@@ -1,5 +1,6 @@
-import { tuning } from './core.mjs';
+import { fuelLevel, lanternCost, tickRate, tuning } from './core.mjs';
 import { floorAt } from './nights.mjs';
+import { drawWood, woodShake } from './wood.mjs';
 
 const near = 0.25;
 const fullTurn = 2 * Math.PI;
@@ -24,7 +25,7 @@ function dot([x, y, z], [a, b, c]) {
   return x * a + y * b + z * c;
 }
 
-function createCamera(width, height, player, yaw) {
+function createCamera(width, height, player, yaw, shake = 0) {
   const angle = yaw * Math.PI / 180;
   const sin = Math.sin(angle);
   const cos = Math.cos(angle);
@@ -42,7 +43,7 @@ function createCamera(width, height, player, yaw) {
     },
     screen([px, py, depth]) {
       const scale = focal / depth;
-      return [width / 2 + px * scale, height * 0.44 - py * scale, scale];
+      return [width / 2 + px * scale + shake, height * 0.44 - py * scale + shake * .38, scale];
     },
   };
 }
@@ -325,16 +326,19 @@ function drawHalo(ctx, camera, world, size, color) {
   halo(ctx, x, y, Math.min(size * scale, 250), color);
 }
 
-function drawLantern(shapes, { pos: [x, y, z], lit, deposited }) {
+function drawLantern(shapes, lantern, dimmed) {
+  const { pos: [x, y, z], lit, deposited }=lantern;
+  const start=shapes.length;
   const metal = ['#344b4a', '#516762', '#6e8070'];
-  const paper = lit ? ['#FFB347', '#ffbd62', '#FFE9B0'] : ['#545965', '#5B5F6E', '#666a7a'];
+  const paper = lit ? (dimmed?['#926338','#a7794a','#d4a369']:['#FFB347','#ffbd62','#FFE9B0'])
+    : ['#545965', '#5B5F6E', '#666a7a'];
   const roof = lit ? ['#794234', '#b06042', '#e59152'] : ['#293741', '#40575c', '#698078'];
   prism(shapes, x, y + 0.02, z, 0.78, 0.66, 0.3, metal);
   prism(shapes, x, y + 0.32, z, 0.19, 0.16, 1.04, wood);
   prism(shapes, x, y + 1.36, z, 0.38, 0.57, 0.17, roof);
   prism(shapes, x, y + 1.53, z, 0.55, 0.5, 0.82, paper);
   if (!lit && deposited > 0) {
-    prism(shapes, x, y + 1.53, z, 0.56, 0.54, 0.82 * deposited / tuning.lantern_cost, ['#b36b48', '#e49256', '#f5ab68']);
+    prism(shapes, x, y + 1.53, z, 0.56, 0.54, 0.82 * deposited / lanternCost(lantern), ['#b36b48', '#e49256', '#f5ab68']);
   }
   prism(shapes, x, y + 2.35, z, 0.65, 0.16, 0.38, roof);
   prism(shapes, x, y + 2.73, z, 0.16, 0, 0.22, paper);
@@ -361,6 +365,37 @@ function drawLantern(shapes, { pos: [x, y, z], lit, deposited }) {
     shapes.push({vertices:[p,perimeter[next],perimeter[next].map((v,k)=>k===1?v-.055:v),
       [p[0],p[1]-.055,p[2]]],color:brass[2]});
   });
+  if (!lit) {
+    for (let i=0;i<6;i++) {
+      const angle=(i+.5)*fullTurn/6;
+      const cos=Math.cos(angle),sin=Math.sin(angle);
+      const tear=(across,up)=>[x+.49*cos-across*sin,y+up,z+.49*sin+across*cos];
+      shapes.push({vertices:[tear(-.15,2.24),tear(.105,2.29),tear(.035,2.04),
+        tear(.145,1.91),tear(.02,1.74),tear(-.025,1.98),tear(-.095,1.93)],color:'#222232'});
+    }
+    for (let i=start;i<shapes.length;i++) {
+      shapes[i].vertices=shapes[i].vertices.map(([vx,vy,vz])=>vy<y+1.53 ? [vx,vy,vz] :
+        [x+(vx-x)*.8,y+1.53+(vy-y-1.53)*.8,z+(vz-z)*.8]);
+    }
+  }
+}
+
+function paintFuel(ctx,camera,lantern,dimmed,accessiblePalette) {
+  const [x,y,z]=lantern.pos;
+  const view=camera.view([x,y+3.23,z]);
+  if (view[2]<near) return;
+  const [sx,sy,scale]=camera.screen(view);
+  if (sx<0 || sx>camera.width || sy<6 || sy>camera.height) return;
+  const width=Math.max(21,Math.min(66,scale*.87));
+  const fuel=fuelLevel(lantern);
+  const low=fuel<tuning.low_fuel_threshold;
+  ctx.fillStyle='#101528ec';
+  ctx.fillRect(sx-width/2-2,sy-2,width+4,9);
+  ctx.fillStyle=low ? dimmed?'#777789':accessiblePalette?'#FFFFFF':'#FF5A5F' : '#FFE9B0';
+  ctx.fillRect(sx-width/2,sy,Math.max(.7,width*fuel/tuning.fuel_max),5);
+  if (low && accessiblePalette) {
+    ctx.font='14px system-ui'; ctx.fillText('⚠',sx+width/2+5,sy+7);
+  }
 }
 
 const tunic = ['#b7ad9d', '#cbc3b0', '#E8E2D0', '#f7f0dc'];
@@ -440,14 +475,14 @@ function drawStunStars(shapes, x, headY, z, seconds, cameraYaw) {
   }
 }
 
-function drawShadow(shapes, shade, playerPos, seconds, cameraYaw) {
+function drawShadow(shapes, shade, playerPos, seconds, cameraYaw, sleeping, accessiblePalette) {
   const [x, center, z] = shade.pos;
   const stunned = shade.state === 'stunned';
   const wave = seconds * (stunned ? 1.5 : 3.2) + x * .12;
   const y = Math.max(0, center - .9) + .16 + Math.sin(wave) * .09;
   const hood = stunned ? ['#2b273e','#3A3450','#48425d','#55516f'] : ['#120A1A','#21142e','#35254d','#554175'];
-  const lining = ['#382566', '#533487', '#6835cd', '#7A3CFF'];
-  const eyes = stunned ? '#ffe087' : '#ffa1cd';
+  const lining = accessiblePalette ? ['#143751','#1d5b83','#228bba','#00B3FF'] : ['#382566','#533487','#6835cd','#7A3CFF'];
+  const eyes = accessiblePalette ? '#00B3FF' : stunned ? '#ffe087' : '#7A3CFF';
   const mesh = [];
   // The pointed hood curls back over a dark face opening.
   loft(mesh, 0, 0, [[.53,.36,.28],[.86,.57,.38],[1.17,.45,.34,0,-.03],
@@ -474,10 +509,25 @@ function drawShadow(shapes, shade, playerPos, seconds, cameraYaw) {
   const facing = Math.atan2(playerPos[0]-x, playerPos[2]-z);
   const cos = Math.cos(facing), sin = Math.sin(facing);
   for (const face of mesh) {
-    shapes.push({ ...face, vertices: face.vertices.map(([a,b,c]) =>
-      [x+a*cos+c*sin, y+b, z-a*sin+c*cos]) });
+    shapes.push({ ...face, vertices: face.vertices.map(([a,b,c]) => {
+      const bend = sleeping ? c + b * .62 : c;
+      return [x+a*cos+bend*sin, y+b*(sleeping ? .48 : 1), z-a*sin+bend*cos];
+    }) });
   }
-  if (stunned) drawStunStars(shapes, x, y + 1.63, z, seconds, cameraYaw);
+  if (stunned && !sleeping) drawStunStars(shapes, x, y + 1.63, z, seconds, cameraYaw);
+}
+
+function paintSleep(ctx, camera, entity, seconds) {
+  const [x,y,z] = entity.pos;
+  const view=camera.view([x,y+1.3,z]);
+  if (view[2]<near) return;
+  const [sx,sy,scale]=camera.screen(view);
+  const size=Math.min(23,Math.max(10,scale*.21));
+  ctx.font='bold '+size+'px system-ui';
+  ctx.fillStyle='#fff0bd';
+  ctx.fillText('Z',sx,sy-Math.sin(seconds*3)*4);
+  ctx.font='bold '+size*.73+'px system-ui';
+  ctx.fillText('z',sx+size*.72,sy-size*.6);
 }
 
 const lightReach = 8;
@@ -515,7 +565,7 @@ function tintFaces(target, start, light) {
   }
 }
 
-function paintMap(ctx, width, height, state, yaw) {
+function paintMap(ctx, width, height, state, yaw, accessiblePalette) {
   if (width < 860 || height < 390) return;
   const x = width - 106;
   const y = height - 254;
@@ -536,7 +586,7 @@ function paintMap(ctx, width, height, state, yaw) {
   const [px, , pz] = state.player.pos;
   for (const shade of state.shades) {
     if (Math.hypot(shade.pos[0] - px, shade.pos[2] - pz) <= 10) {
-      spot((shade.pos[0]-centre) * factor, shade.pos[2] * factor, 3, '#7A3CFF');
+      spot((shade.pos[0]-centre) * factor, shade.pos[2] * factor, 3, accessiblePalette?'#00B3FF':'#7A3CFF');
     }
   }
   spot((px-centre) * factor, pz * factor, 4, '#fff1b5');
@@ -575,7 +625,7 @@ export function createRenderer(ctx) {
   let previousPosition;
   let walkPhase = 0;
   let stride = 0;
-  return (width, height, state, seconds, yaw = 0) => {
+  return (width, height, state, seconds, yaw = 0, woodCast = null, accessiblePalette = false) => {
     if (!nightScenes.has(state.night)) {
       const centres=state.night===2 ? [0,70] : [0];
       const ground=centres.map((x)=>terrain(state.map.radius,x));
@@ -592,8 +642,9 @@ export function createRenderer(ctx) {
       nightScenes.set(state.night,{ground,scenery,paths,raised:raisedTerrain(state.night)});
     }
     const { ground, scenery, paths, raised }=nightScenes.get(state.night);
-    const camera = createCamera(width, height, state.player, yaw);
+    const camera = createCamera(width, height, state.player, yaw, woodShake(state,woodCast));
     const litLanterns = state.lanterns.filter((lantern) => lantern.lit);
+    const dimmed=(lantern)=>lantern.lit && fuelLevel(lantern)<tuning.low_fuel_threshold && state.simTick%tickRate>=tickRate/2;
     const [px, py, pz] = state.player.pos;
     if (state.tick !== previousTick) {
       const travelled = previousPosition && state.tick > previousTick
@@ -657,11 +708,11 @@ export function createRenderer(ctx) {
     }
     for (const lantern of state.lanterns) {
       const start = models.length;
-      drawLantern(models, lantern);
+      drawLantern(models, lantern, dimmed(lantern));
       tintFaces(models, start, lanternLight(lantern.pos,litLanterns));
     }
     for (const shade of state.shades) {
-      drawShadow(models, shade, state.player.pos, seconds, yaw);
+      drawShadow(models, shade, state.player.pos, seconds, yaw, shade.woodSleepUntil>state.simTick, accessiblePalette);
       drawHalo(ctx, camera, shade.pos, 2.7, '#21162fba');
     }
     for (const {pos:[x,y,z]} of state.map.pads) {
@@ -677,7 +728,8 @@ export function createRenderer(ctx) {
     }
     for (const d of state.drifters) {
       if (d.state==='removed') continue;
-      const [x,y,z]=d.pos;
+      const [x,base,z]=d.pos;
+      const y=d.woodSleepUntil>state.simTick ? base-.45 : base;
       for (let i=0;i<7;i++) {
         const wave=(j)=>Math.sin(seconds*6+j*.65)*.2;
         models.push({vertices:[[x-i*.16,y+wave(i),z-.18],[x-i*.16,y+wave(i)-.19,z+.18],
@@ -694,19 +746,28 @@ export function createRenderer(ctx) {
         models.push({vertices:[[x,y,z],[x+.22,y+.06,z+.08],[x+.29,y,z]],color:'#b4c389'});
       }
     }
+    drawWood(models,state,woodCast);
     const playerStart = models.length;
     drawMay(models, state, stride, costume);
     tintFaces(models, playerStart, lanternLight(state.player.pos,litLanterns));
+    if (state.player.invuln>0 && Math.floor(state.simTick/12)%2===1) {
+      for (let i=playerStart;i<models.length;i++) models[i].color+='64';
+    }
     paintFaces(ctx, camera, models);
     for (const point of sparks) {
       const flicker = 0.55 + 0.13 * Math.sin(seconds * 3.6 + point[0] + point[2]);
       drawHalo(ctx, camera, point, flicker, '#FFE58Aa8');
     }
     drawHalo(ctx, camera, [px - Math.cos(state.player.facing) * 0.45, py + 1.12, pz - Math.sin(state.player.facing) * 0.45], 0.65, '#ffac4970');
-    for (const { pos: [x, y, z] } of litLanterns) {
-      drawHalo(ctx, camera, [x, y + 1.9, z], 2.9, '#ffb34f97');
+    for (const lantern of litLanterns) {
+      const [x,y,z]=lantern.pos;
+      drawHalo(ctx, camera, [x,y+1.9,z], dimmed(lantern)?1.3:2.9, dimmed(lantern)?'#ffb34f53':'#ffb34f97');
+      paintFuel(ctx,camera,lantern,dimmed(lantern),accessiblePalette);
     }
-    paintMap(ctx, width, height, state, yaw);
+    for (const enemy of [...state.shades,...state.drifters]) {
+      if (enemy.state!=='removed' && enemy.woodSleepUntil>state.simTick) paintSleep(ctx,camera,enemy,seconds);
+    }
+    paintMap(ctx, width, height, state, yaw, accessiblePalette);
     paintGuide(ctx,camera,width,height,state);
   };
 }

@@ -1,6 +1,6 @@
 # Đảo Đèn Lồng · Ba Đêm
 
-Điều khiển Mây gom đom đóm, thắp đèn qua ba Đêm và dùng ánh sáng để tránh Bóng Mực. Phase 2 thêm Đôi Đảo Tre và Đảo Tháp Chuông, cùng Gió Lạc, Bùa Gió và lướt. [Đặc tả Phase 2](docs/phase-2/spec.md)
+Mây gom đom đóm để thắp và châm dầu cho đèn qua ba Đêm. Tới bình minh, Mây phải còn sống và giữ đủ đèn sáng. [Thay đổi Phase 3](CHANGELOG.md)
 
 ## Cài đặt và chơi
 
@@ -16,25 +16,28 @@ node src/server.mjs
 | `Space` | Nhảy. |
 | `J` / `L` hoặc kéo chuột | Xoay camera. |
 | `Shift` | Lướt. Bùa Gió bỏ thời gian hồi chiêu. |
-| `E` | Nạp đom đóm vào đèn gần nhất. Đèn sáng khi nhận đủ 10, có thể nạp nhiều lần. |
+| `E` | Nạp vào đèn đủ điều kiện gần nhất. Thắp lần đầu cần 10 đom đóm, thắp lại cần 5, mỗi đom đóm châm thêm 10 dầu. |
 | `Q` | Tốn 3 đom đóm để Tỏa Sáng. Hiệu ứng đẩy lùi và làm choáng Bóng Mực, đồng thời có thể xua Gió Lạc. |
+| `1` | Thi triển Mộc Độn về phía kẻ địch gần nhất trong tầm hoặc theo hướng Mây đang nhìn. Hồi chiêu 5 giây. |
 | `Esc` / `P` | Mở menu tạm dừng. Khi chuyển sang tab khác, game tự tạm dừng. |
 | **Chơi lại Đêm** | Bắt đầu lại Đêm hiện tại. |
 
-Mây mang tối đa 10 đom đóm, bắt đầu mỗi Đêm với 3 Ngọn Lửa và có lần lượt 300, 330 và 360 giây. Đèn đã thắp tạo vùng an toàn 6 m. Trúng Bóng Mực làm rơi một nửa số đang mang, còn rơi khỏi đảo làm mất toàn bộ. Vượt cầu hoặc dùng bục nhảy ở Đêm 2. Đêm 3 có dốc, bục nhảy lên tầng cao và gió mạnh.
+**Chọn Đêm** ở menu chính hoặc **Chuyển Đêm** trong menu tạm dừng mở trực tiếp một trong ba Đêm. Mở **Cài đặt → Mộc Độn · hiệu ứng** để chỉnh sáu lớp hiệu ứng. Các tùy chọn được lưu sau khi tải lại game.
 
-**Điểm** mỗi đom đóm nạp +10, mỗi đèn thắp +100 và mỗi Bóng Mực trúng Tỏa Sáng +5. Khi thắng, mỗi giây nguyên còn lại +2 và mỗi Ngọn Lửa còn lại +50. Tổng điểm game cộng điểm của các Đêm đã thắng.
+Đêm 1/2/3 dài **240/270/300 giây**, cần giữ **3/4/5 đèn** sáng tương ứng. Mây mang được 10 đom đóm lúc đầu và thêm 2 sau mỗi lần thắp, tối đa 20. Đèn hao 1 dầu mỗi giây. Dưới 30 dầu, đèn mất vùng an toàn 6 m và có thể bị Bóng Mực hút dầu. Bật **Bảng màu dễ phân biệt** trong Cài đặt để đổi cảnh báo và viền Bóng Mực.
+
+**Điểm** nạp hoặc châm +5 mỗi đom đóm, thắp lần đầu +100, thắp lại +40. Tỏa Sáng trúng Bóng Mực +5, hoặc +15 nếu nó đang hút dầu. Nếu thắng lúc bình minh, mỗi đèn sáng thưởng 50 cộng phần nguyên lượng dầu, mỗi Ngọn Lửa còn lại +50. Tổng điểm game cộng điểm của các Đêm đã thắng.
 
 ## Headless và kiểm thử
 
-Cấu hình Contract 1.1 ở [game.contract.json](game.contract.json). Tham số `--night` nhận 1, 2 hoặc 3. Ví dụ sau chạy toàn Đêm 3 rồi chạy bộ kiểm thử.
+Cấu hình Contract 1.2 ở [game.contract.json](game.contract.json). Tham số `--night` nhận 1, 2 hoặc 3. Ví dụ sau chạy scenario thử châm dầu, hút dầu và bình minh.
 
 ```sh
-node src/headless.mjs --seed 1201 --night 3 --scenario docs/proof/phase-2/full-night.scenario.json --ticks 21600 --out phase-2-full.jsonl
+node src/headless.mjs --seed 1201 --night 1 --scenario docs/proof/phase-3/lanterns.scenario.json --inputs docs/proof/phase-3/lanterns.inputs.json --ticks 120 --out lanterns.jsonl
 node --test
 ```
 
-Xem [bằng chứng Phase 2](docs/proof/phase-2/README.md), [đặc tả và giả định](docs/phase-2/spec.md) và [bằng chứng Phase 1](docs/proof/phase-1/README.md).
+Xem [bằng chứng Phase 3](docs/proof/phase-3/README.md), [ADR dầu đèn](docs/phase-3/adr-001-lantern-fuel.md) và [changelog](CHANGELOG.md).
 
 ## Sáng tạo của tôi
 

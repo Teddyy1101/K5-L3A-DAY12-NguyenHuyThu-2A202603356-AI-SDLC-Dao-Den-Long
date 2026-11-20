@@ -1,5 +1,7 @@
 # Bằng chứng Phase 2
 
+Kết quả và lệnh ở đây dành cho tag `phase-2`. Xem [bằng chứng Phase 3](../phase-3/README.md) để chạy lại với Contract 1.2.
+
 ## Chạy lại kiểm thử
 
 ```sh
