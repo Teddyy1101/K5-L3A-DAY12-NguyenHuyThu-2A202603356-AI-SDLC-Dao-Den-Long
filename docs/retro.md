@@ -20,7 +20,15 @@
 `AGENTS.md` (quy tắc đơn vị dầu, tọa độ từ `src/nights.mjs`, ghi proof) và `node --test` làm cổng kiểm tra trước mỗi commit.
 
 ## Token/chi phí
-Chưa thống kê được; cần điền từ bảng usage của công cụ AI. Cách tiết kiệm: đọc đúng file, dùng profile thay vì đoán, chạy test cục bộ thay vì nhờ AI chạy lại.
+
+| Phase | Ước lượng | Cách tiết kiệm |
+|---|---|---|
+| 1 | Khoảng 20.000–30.000 token nội dung đọc và sinh mới, theo ghi chép lúc triển khai | Tái sử dụng khung 3D và dùng chung logic gameplay cho bản chơi và CLI. |
+| 2 | Khoảng 14.000–24.000 token văn bản thêm trong diff, từ 72.407 ký tự | Giữ cùng mô phỏng và chạy các kịch bản hồi quy từ Phase 1. |
+| 3 | Khoảng 9.500–16.000 token văn bản thêm trong diff, từ 47.782 ký tự | Tập trung vào luật đổi trong ADR và giữ các kiểm tra hành vi cũ còn hiệu lực. |
+| 4 | Khoảng 18.000–30.000 token văn bản thêm trong diff, từ 89.334 ký tự | Dùng CPU profile để tìm điểm nóng và chạy test, bench, soak cục bộ. |
+
+Các ước lượng Phase 2–4 dùng khoảng 3–5 ký tự/token cho dòng thêm trong mã, test và tài liệu chính. Phase 2 lấy bản Contract 1.0 khôi phục làm mốc. Phase 3 và 4 dùng cặp tag liền kề. Các số này đo phần văn bản còn thấy trong Git. Phiên lab chưa có thống kê tổng token của công cụ hoặc chi phí thực trả.
 
 ## Nếu làm lại
 Đặt bench sớm từ Phase 2 để hiệu năng không dồn tới cuối; dùng sprite/offscreen cho quầng sáng từ đầu; lưu số token theo phase.

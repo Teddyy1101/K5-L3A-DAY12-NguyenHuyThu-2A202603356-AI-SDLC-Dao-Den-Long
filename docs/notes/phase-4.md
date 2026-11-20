@@ -20,4 +20,5 @@
 
 ## Đánh giá
 - Hiệu năng: xem [bench.json](../../bench.json) và [bằng chứng](../proof/phase-4/README.md). Trước tối ưu 26.3 fps (p1 4.3), sau tối ưu xem bảng trong bằng chứng.
-- Mục chưa đạt: xem phần "Chưa đạt" trong bằng chứng Phase 4.
+- Kết quả chạy lại khi làm demo và giới hạn đo được ghi trong [bằng chứng Phase 4](../proof/phase-4/README.md).
+- Nhật ký ước lượng token và cách tiết kiệm nằm trong [retro](../retro.md#tokenchi-phí).

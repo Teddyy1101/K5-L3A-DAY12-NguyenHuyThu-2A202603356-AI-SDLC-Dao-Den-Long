@@ -23,3 +23,9 @@ node src/headless.mjs --seed 1201 --night 1 --scenario docs/proof/phase-1/combat
 ```
 
 Hai bản chạy thắng có cùng SHA-256 `8f45832e72567209a03b7026e77e80d3a19a1ae68fa19ffd7522144a4bcba4b4` trong môi trường kiểm chứng.
+
+## Bản Contract 1.0 khôi phục
+
+Tag `phase-1` trên GitHub trỏ vào commit Phase 2 (`9ac9e68`, Contract 1.1). Bản mã Phase 1 dùng Contract 1.0 được khôi phục từ cây Git cục bộ `406e1f1bde3a060364597df5c1bf758e0757f5a7`, bỏ tệp debug cục bộ khi đóng gói. Đây là bản bổ sung để tái hiện Phase 1. [Tải gói bản khôi phục](https://github.com/Teddyy1101/K5-L3A-DAY12-NguyenHuyThu-2A202603356-AI-SDLC-Dao-Den-Long/releases/download/v1.0.0/phase-1-recovered.zip)
+
+Giải nén và chạy các lệnh phía trên bằng Node.js 22.17.0. Lần chạy kiểm chứng đạt 10/10 test. Cả `win.jsonl` và `combat.jsonl` khớp SHA-256 với bằng chứng Phase 1 đã lưu.

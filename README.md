@@ -1,5 +1,7 @@
 # Đảo Đèn Lồng · Ba Đêm (v1.0.0)
 
+[Xem video demo MP4](https://github.com/Teddyy1101/K5-L3A-DAY12-NguyenHuyThu-2A202603356-AI-SDLC-Dao-Den-Long/releases/download/v1.0.0/dao-den-long-demo.mp4) · [Tải bản game v1.0.0](https://github.com/Teddyy1101/K5-L3A-DAY12-NguyenHuyThu-2A202603356-AI-SDLC-Dao-Den-Long/releases/tag/v1.0.0)
+
 Mây gom đom đóm để thắp và châm dầu cho đèn qua ba Đêm. Tới bình minh, Mây phải còn sống và giữ đủ đèn sáng.
 
 ![Đêm 1](docs/proof/phase-2/night-1.png)
@@ -10,14 +12,15 @@ Mây gom đom đóm để thắp và châm dầu cho đèn qua ba Đêm. Tới b
 - Trình duyệt hỗ trợ Canvas 2D (Chrome, Edge, Firefox, Safari). Bench cần Chrome hoặc Edge, hoặc đặt `CHROME_PATH`.
 - Windows, macOS hoặc Linux.
 
-## Cài đặt và chơi (2 lệnh)
+## Cài đặt và chơi
 
 ```sh
-git clone <repo-url> && cd <repo>
+git clone https://github.com/Teddyy1101/K5-L3A-DAY12-NguyenHuyThu-2A202603356-AI-SDLC-Dao-Den-Long.git
+cd K5-L3A-DAY12-NguyenHuyThu-2A202603356-AI-SDLC-Dao-Den-Long
 node src/server.mjs
 ```
 
-Mở `http://127.0.0.1:3000`. Đổi cổng bằng biến môi trường `GAME_PORT`. Bản Release v1.0.0 là gói tĩnh kèm máy chủ Node; giải nén và chạy lệnh thứ hai.
+Mở `http://127.0.0.1:3000`. Đổi cổng bằng biến môi trường `GAME_PORT`. Nếu dùng gói ZIP từ Release v1.0.0, giải nén, mở terminal trong thư mục game rồi chạy `node src/server.mjs`.
 
 ## Điều khiển
 
@@ -64,7 +67,7 @@ node --expose-gc src/soak.mjs --seed 7 --nights 10 --out soak.json
 
 **Soak**: một Đêm chạy khởi động bỏ đi để ổn định JIT, sau đó đo RSS (có `gc()`) sau khi tải Đêm đầu và sau Đêm cuối. Heap giữ phẳng ở khoảng 3.7 MB, RSS chỉ dao động do bộ cấp phát.
 
-Kết quả tự đo: [bench.json](bench.json), [soak.json](soak.json). Bằng chứng: [Phase 4](docs/proof/phase-4/README.md), [Phase 3](docs/proof/phase-3/README.md). Lịch sử: [CHANGELOG](CHANGELOG.md). Nguồn asset: [CREDITS](CREDITS.md). Giấy phép: [LICENSE](LICENSE). Retro: [docs/retro.md](docs/retro.md).
+Kết quả tự đo: [bench.json](bench.json), [soak.json](soak.json). Bằng chứng: [Phase 1 và bản khôi phục Contract 1.0](docs/proof/phase-1/README.md), [Phase 2](docs/proof/phase-2/README.md), [Phase 3](docs/proof/phase-3/README.md), [Phase 4](docs/proof/phase-4/README.md). Lịch sử: [CHANGELOG](CHANGELOG.md). Nguồn asset: [CREDITS](CREDITS.md). Giấy phép: [LICENSE](LICENSE). Retro: [docs/retro.md](docs/retro.md).
 ## Sáng tạo của tôi
 
 Bản đồ nhỏ chỉ vị trí Mây, hướng camera và các Đèn Lồng Lớn. Mỗi đèn đã thắp tạo một quầng sáng vàng cam, hắt lên Mây và cây đá ở gần. Ánh sáng giảm dần trong phạm vi 8 m. Bóng Mực có áo choàng rủ thành dải mực và đôi mắt chuyển vàng khi bị choáng. Bài kiểm thử Canvas và kiểm tra tính tất định của JSONL nằm trong [bộ kiểm thử Phase 1](test/).

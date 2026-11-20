@@ -21,9 +21,13 @@ Tệp [bench.json](../../../bench.json) và [soak.json](../../../soak.json) ở 
 
 Soak 10 Đêm: crashes 0, RSS bắt đầu/kết thúc ≈ 38 → 39.5 MB (≈ 1.03×, ngưỡng 1.2×). Ba lần chạy liên tiếp đều đạt.
 
-## Chưa đạt / chưa làm (ghi trung thực)
-- Ngưỡng avg_fps ≥ 60 chỉ được xác nhận trên máy chấm; trên máy dev số đo là ở bảng trên (chưa đạt 60 fps; JS vẽ còn ~12 ms/khung, phần còn lại là raster Canvas 2D).
-- Chưa kiểm chứng --export-leaderboard thủ công ngoài test tự động.
-- Chưa tắt được vsync (giới hạn của trình duyệt), `peak_mem_mb = null`.
-- Chưa có video demo `docs/demo/demo.mp4`, tag `phase-4` và GitHub Release v1.0.0: cần người dùng quay/đẩy lên GitHub.
-- Retro mới là bản nháp, cần điền số token thật.
+## Bằng chứng bổ sung khi làm demo
+
+- Bản giải nén từ Release `v1.0.0` chạy được trên Node.js 22.17.0 và đạt 47/47 test. Lệnh `node src/server.mjs --export-leaderboard out.json` xuất danh sách rỗng với thư mục dữ liệu mới.
+- Demo quay cảnh chơi trên tag `v1.0.0`. Mây gom 10 đom đóm và dùng E để thắp đèn L2. Phần kiểm chứng hiển thị kết quả thật từ suite test, kịch bản bình minh, benchmark và soak. [Video demo MP4](https://github.com/Teddyy1101/K5-L3A-DAY12-NguyenHuyThu-2A202603356-AI-SDLC-Dao-Den-Long/releases/download/v1.0.0/dao-den-long-demo.mp4)
+- Lần chạy phục vụ demo đặt biến môi trường `BENCH_HEADLESS=1` và dùng các lệnh ở trên. Benchmark đạt 134,435 FPS trung bình, 36,712 FPS p1 low và tải trong 975 ms. Soak có 0 crash, RSS 40,457 → 43,988 MB (1,09×). [Benchmark demo](demo-bench.json) · [Soak demo](demo-soak.json)
+
+## Giới hạn
+
+- Phép đo ban đầu trong bảng trên chưa đạt ngưỡng 60 FPS trung bình và 30 FPS p1 low. Lần chạy demo dùng Chrome headless. Tốc độ hiển thị trên máy chấm chưa được đo.
+- Benchmark vẫn báo `vsync_off=false` và `peak_mem_mb=null` do giới hạn của trình duyệt.
