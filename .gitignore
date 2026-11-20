@@ -2,3 +2,7 @@
 .env.*
 !.env.example
 node_modules/
+debug.log
+*.tmp
+_cp/
+_prof.mjs

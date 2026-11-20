@@ -40,7 +40,7 @@ const emptyIsland = { random_motes: false, random_shades: false };
 
 test('manifest khai đúng tuning dùng trong gameplay', () => {
   const manifest = JSON.parse(readFileSync(join(root, 'game.contract.json'), 'utf8'));
-  assert.equal(manifest.contract_version, '1.2');
+  assert.equal(manifest.contract_version, '1.3');
   assert.deepEqual(manifest.tuning, tuning);
   assert.equal(snapshot(newGame()).lanterns.length, tuning.lantern_count_night1);
 });

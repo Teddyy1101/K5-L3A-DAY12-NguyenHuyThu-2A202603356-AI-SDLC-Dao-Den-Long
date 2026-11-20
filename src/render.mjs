@@ -1,6 +1,8 @@
 import { fuelLevel, lanternCost, tickRate, tuning } from './core.mjs';
 import { floorAt } from './nights.mjs';
 import { drawWood, woodShake } from './wood.mjs';
+import { drawIceModels, paintIce } from './ice.mjs';
+import { drawMeteorModels, meteorAge, meteorSquash, meteorVisible, paintMeteor, squashFaces } from './meteor.mjs';
 
 const near = 0.25;
 const fullTurn = 2 * Math.PI;
@@ -25,18 +27,18 @@ function dot([x, y, z], [a, b, c]) {
   return x * a + y * b + z * c;
 }
 
-function createCamera(width, height, player, yaw, shake = 0) {
+function createCamera(width, height, player, yaw, shake = 0, orbit = null) {
   const angle = yaw * Math.PI / 180;
   const sin = Math.sin(angle);
   const cos = Math.cos(angle);
   const [px, py, pz] = player.pos;
-  const [x, y, z] = [px + 7.1 * sin, 4.8 + py * 0.4, pz + 7.1 * cos];
-  const forward = unit([-10.1 * sin, 0.8 + py * 0.4 - y, -10.1 * cos]);
+  const [x, y, z] = orbit ?? [px + 7.1 * sin, 4.8 + py * 0.4, pz + 7.1 * cos];
+  const forward = unit(orbit ? [-x,-y,-z] : [-10.1 * sin, 0.8 + py * 0.4 - y, -10.1 * cos]);
   const right = unit(cross(forward, [0, 1, 0]));
   const up = cross(right, forward);
   const focal = Math.min(height * 0.96, width * 1.25);
   return {
-    width, height,
+    width, height, right, up, forward, focal, shake, location:[x,y,z],
     view([px, py, pz]) {
       const offset = [px - x, py - y, pz - z];
       return [dot(offset, right), dot(offset, up), dot(offset, forward)];
@@ -46,6 +48,15 @@ function createCamera(width, height, player, yaw, shake = 0) {
       return [width / 2 + px * scale + shake, height * 0.44 - py * scale + shake * .38, scale];
     },
   };
+}
+
+function projected(camera,pos,margin) {
+  const view=camera.view(pos);
+  if (view[2]<near) return;
+  const screen=camera.screen(view);
+  if (screen[0] < -margin || screen[0] > camera.width+margin ||
+      screen[1] < -margin || screen[1] > camera.height+margin) return;
+  return screen;
 }
 
 function clipToCamera(vertices) {
@@ -64,37 +75,77 @@ function clipToCamera(vertices) {
   return clipped;
 }
 
+// Scratch buffers are reused so a frame with thousands of faces does not allocate.
+let viewBuffer = new Float64Array(192), clipBuffer = new Float64Array(384), screenBuffer = new Float64Array(1 << 15);
+let queue = [];
 function paintFaces(ctx, camera, shapes) {
-  const visible = [];
-  for (const { vertices, color, closedMesh } of shapes) {
-    const transformed = vertices.map(camera.view);
+  const { right, up, forward, location, focal, width, height } = camera;
+  const [lx, ly, lz] = location;
+  const [rx, ry, rz] = right, [ux, uy, uz] = up, [fx, fy, fz] = forward;
+  const centreX = width / 2 + camera.shake, centreY = height * 0.44 + camera.shake * .38;
+  let used = 0, count = 0;
+  for (let s = 0; s < shapes.length; s += 1) {
+    const { vertices, color, closedMesh } = shapes[s];
+    const n = vertices.length;
+    if (n * 3 > viewBuffer.length) { viewBuffer = new Float64Array(n * 6); clipBuffer = new Float64Array(n * 12); }
+    for (let i = 0, o = 0; i < n; i += 1, o += 3) {
+      const v = vertices[i], x = v[0] - lx, y = v[1] - ly, z = v[2] - lz;
+      viewBuffer[o] = x * rx + y * ry + z * rz;
+      viewBuffer[o + 1] = x * ux + y * uy + z * uz;
+      viewBuffer[o + 2] = x * fx + y * fy + z * fz;
+    }
     if (closedMesh) {
-      const [a,b,c] = transformed;
-      const edge1 = [b[0]-a[0],b[1]-a[1],b[2]-a[2]];
-      const edge2 = [c[0]-a[0],c[1]-a[1],c[2]-a[2]];
+      const e1x = viewBuffer[3] - viewBuffer[0], e1y = viewBuffer[4] - viewBuffer[1], e1z = viewBuffer[5] - viewBuffer[2];
+      const e2x = viewBuffer[6] - viewBuffer[0], e2y = viewBuffer[7] - viewBuffer[1], e2z = viewBuffer[8] - viewBuffer[2];
       // The generated mesh winds inward. View space reverses that winding.
-      if (dot(cross(edge1,edge2),a) >= 0) continue;
+      const nx = e1y * e2z - e1z * e2y, ny = e1z * e2x - e1x * e2z, nz = e1x * e2y - e1y * e2x;
+      if (nx * viewBuffer[0] + ny * viewBuffer[1] + nz * viewBuffer[2] >= 0) continue;
     }
-    const view = clipToCamera(transformed);
-    if (view.length >= 3) {
-      const points = view.map(camera.screen);
-      if (points.every(([x])=>x<0) || points.every(([x])=>x>camera.width) ||
-          points.every(([,y])=>y<0) || points.every(([,y])=>y>camera.height)) continue;
-      const depth = view.reduce((sum, point) => sum + point[2], 0) / view.length;
-      visible.push({ points, depth, color });
+    let m = 0;
+    for (let i = 0; i < n; i += 1) {
+      const a = i * 3, b = ((i + 1) % n) * 3;
+      const fromVisible = viewBuffer[a + 2] >= near, toVisible = viewBuffer[b + 2] >= near;
+      if (fromVisible) { clipBuffer[m++] = viewBuffer[a]; clipBuffer[m++] = viewBuffer[a + 1]; clipBuffer[m++] = viewBuffer[a + 2]; }
+      if (fromVisible !== toVisible) {
+        const k = (near - viewBuffer[a + 2]) / (viewBuffer[b + 2] - viewBuffer[a + 2]);
+        clipBuffer[m++] = viewBuffer[a] + (viewBuffer[b] - viewBuffer[a]) * k;
+        clipBuffer[m++] = viewBuffer[a + 1] + (viewBuffer[b + 1] - viewBuffer[a + 1]) * k;
+        clipBuffer[m++] = near;
+      }
     }
+    const points = m / 3;
+    if (points < 3) continue;
+    if (used + points * 2 > screenBuffer.length) {
+      const grown = new Float64Array(screenBuffer.length * 2); grown.set(screenBuffer); screenBuffer = grown;
+    }
+    let left = true, over = true, above = true, below = true, depth = 0;
+    for (let i = 0, o = used; i < points; i += 1, o += 2) {
+      const scale = focal / clipBuffer[i * 3 + 2];
+      const px = centreX + clipBuffer[i * 3] * scale, py = centreY - clipBuffer[i * 3 + 1] * scale;
+      screenBuffer[o] = px; screenBuffer[o + 1] = py;
+      if (px >= 0) left = false;
+      if (px <= width) over = false;
+      if (py >= 0) above = false;
+      if (py <= height) below = false;
+      depth += clipBuffer[i * 3 + 2];
+    }
+    if (left || over || above || below) continue;
+    let entry = queue[count];
+    if (!entry) queue[count] = entry = { start: 0, points: 0, depth: 0, color: '' };
+    entry.start = used; entry.points = points; entry.depth = depth / points; entry.color = color;
+    count += 1; used += points * 2;
   }
-  visible.sort((a, b) => b.depth - a.depth);
-  for (const { points, color } of visible) {
+  const visible = queue.slice(0, count).sort((a, b) => b.depth - a.depth);
+  for (let q = 0; q < count; q += 1) {
+    const { start, points, color } = visible[q];
     ctx.beginPath();
-    ctx.moveTo(points[0][0], points[0][1]);
-    for (const [x, y] of points.slice(1)) ctx.lineTo(x, y);
+    ctx.moveTo(screenBuffer[start], screenBuffer[start + 1]);
+    for (let i = 1, o = start + 2; i < points; i += 1, o += 2) ctx.lineTo(screenBuffer[o], screenBuffer[o + 1]);
     ctx.closePath();
     ctx.fillStyle = color;
     ctx.fill();
   }
 }
-
 function ring(x, y, z, radius, segments, phase = 0) {
   return Array.from({ length: segments }, (_, index) => {
     const angle = phase + fullTurn * index / segments;
@@ -247,7 +298,7 @@ function landscape() {
     loft(rack,x,-3.5,[[y-.25,.027,.027],[y-.12,.035,.035],[y-.09,.12,.09],
       [y+.02,.155,.14],[y+.13,.12,.10],[y+.17,.065,.055]], [cloth,brass,cloth,cloth,brass],8);
   }
-  groups.push({centre:[-3.72,1.2,-3.5],radius:2,faces:rack});
+  groups.push({centre:[-3.72,1.2,-3.5],radius:2,faces:rack,creative:true});
   return groups;
 }
 
@@ -311,7 +362,19 @@ function paintSky(ctx, width, height, seconds, yaw) {
   }
 }
 
+const haloTextures=new Map();
 function halo(ctx, x, y, radius, color) {
+  if (typeof OffscreenCanvas!=='undefined' && typeof ctx.drawImage==='function') {
+    if (!haloTextures.has(color)) {
+      const sprite=new OffscreenCanvas(96,96), brush=sprite.getContext('2d');
+      const gradient=brush.createRadialGradient(48,48,0,48,48,48);
+      gradient.addColorStop(0,color); gradient.addColorStop(1,'#00000000');
+      brush.fillStyle=gradient; brush.fillRect(0,0,96,96);
+      haloTextures.set(color,sprite);
+    }
+    ctx.drawImage(haloTextures.get(color),x-radius,y-radius,radius*2,radius*2);
+    return;
+  }
   const gradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
   gradient.addColorStop(0, color);
   gradient.addColorStop(1, '#00000000');
@@ -320,10 +383,23 @@ function halo(ctx, x, y, radius, color) {
 }
 
 function drawHalo(ctx, camera, world, size, color) {
-  const point = camera.view(world);
-  if (point[2] < near) return;
-  const [x, y, scale] = camera.screen(point);
+  const point=projected(camera,world,250);
+  if (!point) return;
+  const [x, y, scale] = point;
   halo(ctx, x, y, Math.min(size * scale, 250), color);
+}
+
+function distantShadow(shapes,camera,shade,seconds,accessiblePalette) {
+  const [x,y,z]=shade.pos;
+  const origin=y-.7+Math.sin(seconds*3+x*.13)*.08;
+  const [rx,,rz]=camera.right;
+  const p=(offset,height)=>[x+offset*rx,origin+height,z+offset*rz];
+  const eyes=accessiblePalette?'#00B3FF':'#7A3CFF';
+  shapes.push({vertices:[p(-.67,.15),p(-.49,.65),p(-.30,1.08),p(.12,1.55),
+    p(.43,1.02),p(.61,.61),p(.53,.13),p(.21,.34),p(-.06,.04),p(-.31,.35)],color:'#30213f'},
+    {vertices:[p(-.39,.73),p(-.18,1.06),p(.28,1.0),p(.40,.70),p(0,.52)],color:'#120A1A'},
+    {vertices:[p(-.29,.83),p(-.10,.79),p(-.16,.72)],color:eyes},
+    {vertices:[p(.30,.83),p(.10,.79),p(.17,.72)],color:eyes});
 }
 
 function drawLantern(shapes, lantern, dimmed) {
@@ -561,7 +637,7 @@ function tintFaces(target, start, light) {
       const b = Math.min(255, Math.round((rgb&255)*(.86+.08*t)+4*t));
       palette[level] = '#' + ((r << 16) | (g << 8) | b).toString(16).padStart(6,'0');
     }
-    target[i] = {...face, color:palette[level]};
+    target[i] = {vertices:face.vertices, color:palette[level], closedMesh:face.closedMesh};
   }
 }
 
@@ -616,6 +692,18 @@ function paintGuide(ctx,camera,width,height,state) {
   ctx.closePath(); ctx.fillStyle='#F2C14E'; ctx.fill();
 }
 
+function paintSpawnDirection(ctx,camera,shade) {
+  const view=camera.view(shade.pos);
+  const angle=Math.atan2(-view[1],view[0] || .001);
+  const x=camera.width/2+Math.cos(angle)*(camera.width/2-29);
+  const y=camera.height/2+Math.sin(angle)*(camera.height/2-110);
+  ctx.beginPath();
+  ctx.moveTo(x+Math.cos(angle)*20,y+Math.sin(angle)*20);
+  ctx.lineTo(x+Math.cos(angle+2.55)*15,y+Math.sin(angle+2.55)*15);
+  ctx.lineTo(x+Math.cos(angle-2.55)*15,y+Math.sin(angle-2.55)*15);
+  ctx.closePath(); ctx.fillStyle='#F5F1E6'; ctx.fill();
+}
+
 export function createRenderer(ctx) {
   const nightScenes = new Map();
   const baseScenery = landscape();
@@ -625,7 +713,7 @@ export function createRenderer(ctx) {
   let previousPosition;
   let walkPhase = 0;
   let stride = 0;
-  return (width, height, state, seconds, yaw = 0, woodCast = null, accessiblePalette = false) => {
+  return (width, height, state, seconds, yaw = 0, woodCast = null, accessiblePalette = false, options = {}) => {
     if (!nightScenes.has(state.night)) {
       const centres=state.night===2 ? [0,70] : [0];
       const ground=centres.map((x)=>terrain(state.map.radius,x));
@@ -642,9 +730,9 @@ export function createRenderer(ctx) {
       nightScenes.set(state.night,{ground,scenery,paths,raised:raisedTerrain(state.night)});
     }
     const { ground, scenery, paths, raised }=nightScenes.get(state.night);
-    const camera = createCamera(width, height, state.player, yaw, woodShake(state,woodCast));
+    const camera = createCamera(width,height,state.player,yaw,options.reduceMotion?0:woodShake(state,woodCast),options.orbit);
     const litLanterns = state.lanterns.filter((lantern) => lantern.lit);
-    const dimmed=(lantern)=>lantern.lit && fuelLevel(lantern)<tuning.low_fuel_threshold && state.simTick%tickRate>=tickRate/2;
+    const dimmed=(lantern)=>!options.reduceMotion && lantern.lit && fuelLevel(lantern)<tuning.low_fuel_threshold && state.simTick%tickRate>=tickRate/2;
     const [px, py, pz] = state.player.pos;
     if (state.tick !== previousTick) {
       const travelled = previousPosition && state.tick > previousTick
@@ -669,8 +757,8 @@ export function createRenderer(ctx) {
       let pool = lightPools.get(lantern);
       if (!pool) {
         const [x,y,z] = lantern.pos;
-        pool = Array.from({length:32}, (_, i) => ({
-          vertices:ring(x,y+.04,z,lightReach * (32-i)/32,32), color:'#FFB34704',
+        pool = Array.from({length:16}, (_, i) => ({
+          vertices:ring(x,y+.04,z,lightReach * (16-i)/16,32), color:'#FFB34708',
         }));
         lightPools.set(lantern, pool);
       }
@@ -688,6 +776,7 @@ export function createRenderer(ctx) {
 
     const models = [];
     for (const group of scenery) {
+      if (options.orbit && group.creative) continue;
       const view = camera.view(group.centre);
       if (view[2] + group.radius < near) continue;
       if (view[2] > group.radius + near) {
@@ -703,6 +792,7 @@ export function createRenderer(ctx) {
     for (const mote of state.motes) {
       const [x, groundY, z] = mote.pos;
       const y = groundY + 0.66 + Math.sin(seconds * 3 + Number(mote.id.slice(1))) * 0.19;
+      if (!projected(camera,[x,y,z],40)) continue;
       sparks.push([x, y + 0.09, z]);
       prism(models, x, y, z, 0.12, 0.038, 0.18, ['#FFE58A', '#FFF6C2', '#FFF6C2'], 5);
     }
@@ -711,8 +801,14 @@ export function createRenderer(ctx) {
       drawLantern(models, lantern, dimmed(lantern));
       tintFaces(models, start, lanternLight(lantern.pos,litLanterns));
     }
+    const meteor=options.meteor, squash=meteorVisible(state,meteor) ? meteorSquash(meteor,meteorAge(state,meteor)) : 1;
     for (const shade of state.shades) {
-      drawShadow(models, shade, state.player.pos, seconds, yaw, shade.woodSleepUntil>state.simTick, accessiblePalette);
+      const visible=projected(camera,shade.pos,130);
+      if (!visible) continue;
+      const shadeStart=models.length;
+      if (visible[2]<37 && shade.state==='wander') distantShadow(models,camera,shade,seconds,accessiblePalette);
+      else drawShadow(models, shade, state.player.pos, seconds, yaw, shade.woodSleepUntil>state.simTick, accessiblePalette);
+      if (meteor?.target===shade) squashFaces(models,shadeStart,shade,shade.pos[1]-.7,squash);
       drawHalo(ctx, camera, shade.pos, 2.7, '#21162fba');
     }
     for (const {pos:[x,y,z]} of state.map.pads) {
@@ -730,11 +826,13 @@ export function createRenderer(ctx) {
       if (d.state==='removed') continue;
       const [x,base,z]=d.pos;
       const y=d.woodSleepUntil>state.simTick ? base-.45 : base;
+      const driftStart=models.length;
       for (let i=0;i<7;i++) {
         const wave=(j)=>Math.sin(seconds*6+j*.65)*.2;
         models.push({vertices:[[x-i*.16,y+wave(i),z-.18],[x-i*.16,y+wave(i)-.19,z+.18],
           [x-(i+1)*.16,y+wave(i+1)-.17,z+.12],[x-(i+1)*.16,y+wave(i+1),z-.12]],color:i%2?'#8FA3B8':'#adbed0'});
       }
+      if (meteor?.target===d) squashFaces(models,driftStart,d,base-.2,squash);
     }
     if (state.wind.warning || state.wind.active) {
       const a=state.wind.dir_deg*Math.PI/180;
@@ -747,13 +845,17 @@ export function createRenderer(ctx) {
       }
     }
     drawWood(models,state,woodCast);
+    drawMeteorModels(models,state,meteor);
+    drawIceModels(models,state,options.ice);
     const playerStart = models.length;
     drawMay(models, state, stride, costume);
     tintFaces(models, playerStart, lanternLight(state.player.pos,litLanterns));
-    if (state.player.invuln>0 && Math.floor(state.simTick/12)%2===1) {
+    if (!options.reduceMotion && state.player.invuln>0 && Math.floor(state.simTick/12)%2===1) {
       for (let i=playerStart;i<models.length;i++) models[i].color+='64';
     }
     paintFaces(ctx, camera, models);
+    paintMeteor(ctx, camera, state, meteor, options);
+    paintIce(ctx, camera, state, options.ice, options);
     for (const point of sparks) {
       const flicker = 0.55 + 0.13 * Math.sin(seconds * 3.6 + point[0] + point[2]);
       drawHalo(ctx, camera, point, flicker, '#FFE58Aa8');
@@ -767,7 +869,11 @@ export function createRenderer(ctx) {
     for (const enemy of [...state.shades,...state.drifters]) {
       if (enemy.state!=='removed' && enemy.woodSleepUntil>state.simTick) paintSleep(ctx,camera,enemy,seconds);
     }
-    paintMap(ctx, width, height, state, yaw, accessiblePalette);
-    paintGuide(ctx,camera,width,height,state);
+    if (!options.orbit) {
+      paintMap(ctx, width, height, state, yaw, accessiblePalette);
+      paintGuide(ctx,camera,width,height,state);
+      const spawn=state.shades.find((shade)=>shade.id===options.spawnId);
+      if (spawn) paintSpawnDirection(ctx,camera,spawn);
+    }
   };
 }

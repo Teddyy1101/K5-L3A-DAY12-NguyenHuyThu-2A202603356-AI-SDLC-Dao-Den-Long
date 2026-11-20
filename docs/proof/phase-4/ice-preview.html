@@ -1,0 +1,10 @@
+﻿<!doctype html><meta charset="utf-8"><body style="margin:0;background:#000"><canvas id="c" width="1280" height="720"></canvas>
+<script type="module">
+import { newGame } from '/src/core.mjs';
+import { createRenderer } from '/src/render.mjs';
+import { castIce, iceSettings } from '/src/ice.mjs';
+const q=new URLSearchParams(location.search), t=Number(q.get('t'));
+const st=newGame(1201,{random_shades:false,random_drifters:false,random_motes:false,shades:[{pos:[0,1,10],state:'stunned'}]});
+st.simTick=0; const cast=castIce(st,iceSettings()); st.simTick=Math.round(t*60);
+createRenderer(document.getElementById('c').getContext('2d'))(1280,720,st,2,180,null,false,{ice:cast});
+</script>

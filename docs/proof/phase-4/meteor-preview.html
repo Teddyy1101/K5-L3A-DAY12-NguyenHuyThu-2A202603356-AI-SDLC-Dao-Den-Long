@@ -1,0 +1,13 @@
+﻿<!doctype html><meta charset="utf-8"><body style="margin:0;background:#000"><canvas id="c" width="1280" height="720"></canvas>
+<script type="module">
+import { newGame } from '/src/core.mjs';
+import { createRenderer } from '/src/render.mjs';
+import { castMeteor, meteorSettings } from '/src/meteor.mjs';
+const q=new URLSearchParams(location.search), t=Number(q.get('t')), mode=q.get('mode');
+const st=newGame(1201,{random_shades:false,random_drifters:false,random_motes:false,shades:[{pos:[0,1,10],state:'stunned'}]});
+const o=meteorSettings(mode==='single'?{rain:false,umbrella:false}:mode==='rain'?{umbrella:false}:{});
+st.simTick=0; const cast=castMeteor(st,o); st.simTick=Math.round(t*60);
+const ctx=document.getElementById('c').getContext('2d');
+createRenderer(ctx)(1280,720,st,2,180,null,false,{meteor:cast});
+document.title='done';
+</script>

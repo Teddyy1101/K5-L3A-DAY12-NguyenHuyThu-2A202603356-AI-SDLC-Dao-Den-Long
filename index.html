@@ -24,20 +24,21 @@
       </dl>
       <p class="prompt" id="prompt" role="status" hidden></p>
       <p class="feedback" id="feedback" role="status" hidden></p>
+      <p class="captions" id="captions" role="status" hidden></p>
       <div class="mote-hud"><div id="mote-bar" aria-hidden="true"></div><span id="flies" aria-label="Đom đóm">0 / 10</span></div>
       <div class="abilities" aria-label="Kỹ năng">
-        <span><kbd>Shift</kbd><span id="dash-cd">Lướt</span></span>
-        <span><kbd>Q</kbd><span id="pulse-cd">Tỏa sáng</span></span>
-        <span><kbd>1</kbd><span id="wood-cd">Mộc Độn</span></span>
+        <span><kbd id="key-dash">Shift</kbd><span id="dash-cd">Lướt</span></span>
+        <span><kbd id="key-pulse">Q</kbd><span id="pulse-cd">Tỏa sáng</span></span>
+        <span><kbd id="key-wood">1</kbd><span id="wood-cd">Mộc Độn</span></span>
+        <span><kbd id="key-meteor">2</kbd><span id="meteor-cd">Mưa sao băng</span></span>
+        <span><kbd id="key-ice">3</kbd><span id="ice-cd">Phép băng</span></span>
         <span id="charm-status" hidden></span>
       </div>
       <footer class="controls" aria-label="Điều khiển">
-        <span><kbd>WASD</kbd> / <kbd>↑↓←→</kbd> Di chuyển</span>
-        <span><kbd>Space</kbd> Nhảy</span>
-        <span><kbd>J</kbd> <kbd>L</kbd> Xoay camera</span>
-        <span><kbd>E</kbd> Nạp đèn</span>
-        <span><kbd>Q</kbd> Tỏa sáng</span>
-        <span><kbd>Shift</kbd> Lướt</span>
+        <span><kbd id="key-move">W A S D</kbd> Di chuyển</span>
+        <span><kbd id="key-jump">Space</kbd> Nhảy</span>
+        <span><kbd id="key-camera">J L</kbd> Xoay camera</span>
+        <span><kbd id="key-interact">E</kbd> Nạp đèn</span>
         <button id="pause" type="button" aria-keyshortcuts="P">Tạm dừng (P)</button>
         <button id="restart" type="button">Chơi lại</button>
       </footer>
@@ -45,6 +46,11 @@
         <div class="result-card">
           <h2 id="result-title"></h2>
           <p id="result-detail"></p>
+          <form id="score-form" hidden>
+            <label>Tên <input id="score-name" name="name" required minlength="3" maxlength="12" pattern="[A-Za-z0-9_]{3,12}" autocomplete="off"></label>
+            <button id="score-submit" type="submit">Lưu điểm</button>
+            <p id="score-status" role="status"></p>
+          </form>
           <button id="play-again" type="button">Chơi lại</button>
           <button id="next-night" type="button" hidden>Đêm kế tiếp</button>
           <button id="result-menu" type="button">Về menu</button>
@@ -57,12 +63,13 @@
           <button id="stage-action" type="button">Bắt đầu</button>
           <button id="stage-switch" type="button">Chọn Đêm</button>
           <button id="stage-settings" type="button">Cài đặt</button>
+          <button id="stage-leaderboard" type="button">Bảng xếp hạng</button>
         </div>
       </section>
       <section id="pause-panel" class="result" aria-labelledby="pause-title" hidden>
         <div class="result-card">
           <h2 id="pause-title">Tạm dừng</h2>
-          <p>Nhấn Esc hoặc P để tiếp tục.</p>
+          <p id="pause-hint">Nhấn Esc hoặc P để tiếp tục.</p>
           <div class="menu-actions">
             <button id="resume" type="button">Tiếp tục</button>
             <button id="pause-replay" type="button">Chơi lại Đêm</button>
@@ -89,11 +96,35 @@
           <label>Âm lượng <input id="volume" type="range" min="0" max="100" value="45"></label>
           <label>Độ nhạy chuột <input id="sensitivity" type="range" min="10" max="200" value="75"></label>
           <label>Bảng màu dễ phân biệt <input id="accessible-palette" type="checkbox"></label>
+          <label>Giảm chuyển động <input id="reduce-motion" type="checkbox"></label>
+          <label>Chữ lớn (×1.25) <input id="large-font" type="checkbox"></label>
+          <details id="controls-settings">
+            <summary>Đổi phím</summary>
+            <div id="key-controls"></div>
+            <p id="key-status" role="status"></p>
+            <button id="keys-reset" type="button">Khôi phục mặc định</button>
+          </details>
           <details id="wood-settings">
             <summary>Mộc Độn · hiệu ứng</summary>
             <div id="wood-options"></div>
           </details>
+          <details id="meteor-settings">
+            <summary>Mưa sao băng · hiệu ứng</summary>
+            <div id="meteor-options"></div>
+          </details>
+          <details id="ice-settings">
+            <summary>Phép băng · hiệu ứng</summary>
+            <div id="ice-options"></div>
+          </details>
           <button id="settings-close" type="button">Quay lại</button>
+        </div>
+      </section>
+      <section id="leaderboard" class="result" aria-labelledby="leaderboard-title" hidden>
+        <div class="result-card">
+          <h2 id="leaderboard-title">Bảng xếp hạng</h2>
+          <p id="leaderboard-status" role="status"></p>
+          <ol id="leaderboard-list"></ol>
+          <button id="leaderboard-close" type="button">Quay lại</button>
         </div>
       </section>
       <noscript><p class="prompt">Bật JavaScript để chơi Đảo Đèn Lồng.</p></noscript>

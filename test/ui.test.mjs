@@ -42,7 +42,7 @@ test('đường vào game nhận phím, cập nhật HUD, hiển thị thua và 
     'play-again','feedback','pause','night-name','mote-bar','dash-cd','pulse-cd','charm-status','next-night','result-menu',
     'stage','stage-title','stage-text','stage-action','stage-settings','pause-panel','resume','pause-replay','pause-settings',
     'pause-menu','settings','volume','sensitivity','settings-close','wood-cd','wood-options','stage-switch','pause-switch',
-    'night-picker','picker-close','choose-night-1','choose-night-2','choose-night-3','dawn-target','accessible-palette']) {
+    'night-picker','picker-close','choose-night-1','choose-night-2','choose-night-3','dawn-target','accessible-palette','captions','key-controls','key-status','keys-reset','key-move','key-camera','key-jump','key-dash','key-pulse','key-wood','key-interact','leaderboard','leaderboard-close','leaderboard-list','leaderboard-status','pause-hint','score-form','score-name','score-status','score-submit','stage-leaderboard','reduce-motion','large-font','key-meteor','meteor-cd','meteor-options','key-ice','ice-cd','ice-options']) {
     nodes.set(`#${id}`, { textContent:'', hidden:true, children:[], focus() {},
       append(child) { this.children.push(child); }, addEventListener:(type,callback)=>handlers.set(`${id}:${type}`,callback) });
   }

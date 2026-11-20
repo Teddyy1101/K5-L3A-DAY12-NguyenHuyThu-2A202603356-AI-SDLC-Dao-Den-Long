@@ -56,12 +56,12 @@ button:focus-visible { outline: 3px solid #bcf2e1; outline-offset: 3px; }
 #stage { background: linear-gradient(135deg,#0e1430e0,#12384a61); }
 #settings, #night-picker { z-index: 2; }
 #settings .result-card { max-height: 90dvh; overflow-y: auto; }
-#wood-settings { text-align: left; margin: 18px 0; }
-#wood-settings summary { cursor: pointer; color: #F2C14E; }
-#wood-options fieldset { border: 1px solid #f2c14e55; border-radius: 8px; margin: 10px 0; padding: 4px 10px; }
-#wood-options label { display: flex; gap: 7px; justify-content: space-between; margin: 8px 0; font-size: .875rem; }
-#wood-options label input[type=range] { width: min(40%, 120px); }
-#wood-options output { font-variant-numeric: tabular-nums; }
+#wood-settings, #meteor-settings, #ice-settings { text-align: left; margin: 18px 0; }
+#wood-settings summary, #meteor-settings summary, #ice-settings summary { cursor: pointer; color: #F2C14E; }
+#wood-options fieldset, #meteor-options fieldset, #ice-options fieldset { border: 1px solid #f2c14e55; border-radius: 8px; margin: 10px 0; padding: 4px 10px; }
+#wood-options label, #meteor-options label, #ice-options label { display: flex; gap: 7px; justify-content: space-between; margin: 8px 0; font-size: .875rem; }
+#wood-options label input[type=range], #meteor-options label input[type=range], #ice-options label input[type=range] { width: min(40%, 120px); }
+#wood-options output, #meteor-options output, #ice-options output { font-variant-numeric: tabular-nums; }
 #settings label { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: center; margin: 18px 0; text-align: left; }
 #settings input { accent-color: #F2C14E; max-width: 100%; }
 .stats { inset: 16px 24px auto; display: block; padding: 0; border: 0; box-shadow: none; background: none; pointer-events: none; }

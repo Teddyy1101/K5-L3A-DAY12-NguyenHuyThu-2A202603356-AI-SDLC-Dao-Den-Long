@@ -38,7 +38,7 @@ export const requiredLanterns = (state) => Math.ceil(state.lanterns.length * tun
 const reportedFuel = (lantern) => Number(fuelLevel(lantern).toFixed(1));
 const isWeak = (lantern) => lantern.lit && lantern.fuelTicks < safeFuel;
 
-function seededRandom(seed) {
+export function seededRandom(seed) {
   let value = seed >>> 0;
   return () => {
     value = (value + 0x6d2b79f5) >>> 0;
@@ -390,7 +390,7 @@ function moveShade(state, shade, next, safe) {
   return true;
 }
 
-function moveEnemies(state, safe) {
+function moveEnemies(state, safe, wanderOnly = false) {
   const p=state.player;
   for (const s of state.shades) {
     let returnToWander = s.state==='stunned' && s.left===0 && !(s.woodHeldUntil>state.simTick);
@@ -426,7 +426,7 @@ function moveEnemies(state, safe) {
     }
     if (s.left > 0 && ['spawning','stunned','recoil'].includes(s.state)) continue;
     if (returnToWander) continue;
-    s.tracking=!p.respawn && within(s.pos,p.pos,s.tracking?18:12);
+    s.tracking=!wanderOnly && !p.respawn && within(s.pos,p.pos,s.tracking?18:12);
     s.state=s.tracking?'chase':'wander';
     s.heading+=.008;
     const target=s.tracking ? null : closestLantern(state.lanterns,s.pos,isWeak)
@@ -460,6 +460,13 @@ function moveEnemies(state, safe) {
     if (d.state === 'chase') d.pos=offset(d.pos,direction(d.pos,p.pos),Math.min(7/tickRate,dist));
     if (d.state === 'flee') d.pos=offset(d.pos,direction(p.pos,d.pos),7/tickRate);
   }
+}
+
+export function stepBenchmark(state) {
+  state.tick++;
+  state.simTick++;
+  const safe=state.lanterns.filter((lantern)=>lantern.lit && !isWeak(lantern));
+  moveEnemies(state,safe,true);
 }
 
 function contacts(state,safe,emit,reactToHits) {

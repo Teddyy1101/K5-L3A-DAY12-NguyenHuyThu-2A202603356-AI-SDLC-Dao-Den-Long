@@ -1,44 +1,70 @@
-# Đảo Đèn Lồng · Ba Đêm
+# Đảo Đèn Lồng · Ba Đêm (v1.0.0)
 
-Mây gom đom đóm để thắp và châm dầu cho đèn qua ba Đêm. Tới bình minh, Mây phải còn sống và giữ đủ đèn sáng. [Thay đổi Phase 3](CHANGELOG.md)
+Mây gom đom đóm để thắp và châm dầu cho đèn qua ba Đêm. Tới bình minh, Mây phải còn sống và giữ đủ đèn sáng.
 
-## Cài đặt và chơi
+![Đêm 1](docs/proof/phase-2/night-1.png)
 
-Cần Node.js 22 trở lên và trình duyệt hỗ trợ Canvas 2D. Game chạy trên macOS/Linux với Node.js, không cần cài gói npm. Từ thư mục repo, chạy rồi mở `http://127.0.0.1:3000`.
+## Yêu cầu hệ thống
+
+- Node.js 22 trở lên (không cần `npm install`, không có gói ngoài).
+- Trình duyệt hỗ trợ Canvas 2D (Chrome, Edge, Firefox, Safari). Bench cần Chrome hoặc Edge, hoặc đặt `CHROME_PATH`.
+- Windows, macOS hoặc Linux.
+
+## Cài đặt và chơi (2 lệnh)
 
 ```sh
+git clone <repo-url> && cd <repo>
 node src/server.mjs
 ```
 
-| Điều khiển | Hành động |
+Mở `http://127.0.0.1:3000`. Đổi cổng bằng biến môi trường `GAME_PORT`. Bản Release v1.0.0 là gói tĩnh kèm máy chủ Node; giải nén và chạy lệnh thứ hai.
+
+## Điều khiển
+
+Mặc định như bảng sau. Mở **Cài đặt → Đổi phím** để đổi mọi hành động. Phím trùng bị từ chối kèm thông báo, có nút **Khôi phục mặc định**, cấu hình được lưu.
+
+| Phím | Hành động |
 |---|---|
-| `WASD` hoặc phím mũi tên | Di chuyển theo camera. |
-| `Space` | Nhảy. |
-| `J` / `L` hoặc kéo chuột | Xoay camera. |
-| `Shift` | Lướt. Bùa Gió bỏ thời gian hồi chiêu. |
-| `E` | Nạp vào đèn đủ điều kiện gần nhất. Thắp lần đầu cần 10 đom đóm, thắp lại cần 5, mỗi đom đóm châm thêm 10 dầu. |
-| `Q` | Tốn 3 đom đóm để Tỏa Sáng. Hiệu ứng đẩy lùi và làm choáng Bóng Mực, đồng thời có thể xua Gió Lạc. |
-| `1` | Thi triển Mộc Độn về phía kẻ địch gần nhất trong tầm hoặc theo hướng Mây đang nhìn. Hồi chiêu 5 giây. |
-| `Esc` / `P` | Mở menu tạm dừng. Khi chuyển sang tab khác, game tự tạm dừng. |
-| **Chơi lại Đêm** | Bắt đầu lại Đêm hiện tại. |
+| `W A S D` hoặc phím mũi tên | Di chuyển theo camera |
+| `Space` | Nhảy |
+| `J` / `L` hoặc kéo chuột | Xoay camera |
+| `Shift` | Lướt |
+| `E` | Nạp đom đóm vào đèn gần nhất. Thắp lần đầu cần 10, thắp lại cần 5, mỗi đom đóm châm 10 dầu |
+| `Q` | Tỏa Sáng (3 đom đóm): đẩy lùi, làm choáng Bóng Mực, xua Gió Lạc |
+| `1` | Mộc Độn, hồi chiêu 5 giây |
+| `2` | Mưa sao băng (hồi 8 giây), hiệu ứng hình ảnh, không đổi luật. Mở **Cài đặt → Mưa sao băng · hiệu ứng** để bật/tắt và chỉnh từng bước: đầu sáng, vệt đuôi, nổ tia, sao văng, mưa liên tục, bonus ô và sao băng khổng lồ |
+| `3` | Phép băng (hồi 6 giây), hiệu ứng hình ảnh: hàng gai băng mọc từ đất tới quái, đất nứt, gai tan thành mảnh, rồi khối băng bọc quái. Chỉnh từng hiệu ứng ở **Cài đặt → Phép băng · hiệu ứng** |
+| `Esc` / `P` | Tạm dừng. Đổi tab cũng tự tạm dừng |
 
-**Chọn Đêm** ở menu chính hoặc **Chuyển Đêm** trong menu tạm dừng mở trực tiếp một trong ba Đêm. Mở **Cài đặt → Mộc Độn · hiệu ứng** để chỉnh sáu lớp hiệu ứng. Các tùy chọn được lưu sau khi tải lại game.
+Đêm 1/2/3 dài **240/270/300 giây**, cần giữ **3/4/5 đèn** sáng. Đèn hao 1 dầu mỗi giây; dưới 30 dầu đèn mất vùng an toàn 6 m. Điểm: +5 mỗi đom đóm, thắp lần đầu +100, thắp lại +40, Tỏa Sáng trúng +5 (+15 nếu đang hút dầu), thưởng bình minh 50 mỗi đèn cộng phần nguyên dầu và 50 mỗi Ngọn Lửa.
 
-Đêm 1/2/3 dài **240/270/300 giây**, cần giữ **3/4/5 đèn** sáng tương ứng. Mây mang được 10 đom đóm lúc đầu và thêm 2 sau mỗi lần thắp, tối đa 20. Đèn hao 1 dầu mỗi giây. Dưới 30 dầu, đèn mất vùng an toàn 6 m và có thể bị Bóng Mực hút dầu. Bật **Bảng màu dễ phân biệt** trong Cài đặt để đổi cảnh báo và viền Bóng Mực.
+### Bảng xếp hạng
 
-**Điểm** nạp hoặc châm +5 mỗi đom đóm, thắp lần đầu +100, thắp lại +40. Tỏa Sáng trúng Bóng Mực +5, hoặc +15 nếu nó đang hút dầu. Nếu thắng lúc bình minh, mỗi đèn sáng thưởng 50 cộng phần nguyên lượng dầu, mỗi Ngọn Lửa còn lại +50. Tổng điểm game cộng điểm của các Đêm đã thắng.
+Sau bình minh Đêm 3 hoặc sau khi thua ở bất kỳ Đêm nào, nhập tên 3–12 ký tự `[A-Za-z0-9_]`. Giữ top 10 theo điểm giảm dần, bằng điểm thì người đạt trước đứng trên. Dữ liệu lưu ở `~/.dao-den-long/leaderboard.json` (đổi bằng `GAME_DATA_DIR`). Xem từ **Bảng xếp hạng** ở menu chính. Xuất: `node src/server.mjs --export-leaderboard out.json`.
 
-## Headless và kiểm thử
+### Dễ tiếp cận
 
-Cấu hình Contract 1.2 ở [game.contract.json](game.contract.json). Tham số `--night` nhận 1, 2 hoặc 3. Ví dụ sau chạy scenario thử châm dầu, hút dầu và bình minh.
+- Đổi phím toàn bộ hành động, có phát hiện trùng.
+- Phụ đề và chỉ báo: Bóng Mực xuất hiện (kèm mũi tên ở mép màn hình), gió sắp thổi, 10 giây cuối, đèn dưới 30 dầu.
+- **Giảm chuyển động**: tắt rung camera và chớp màn hình (mặc định theo `prefers-reduced-motion`).
+- Cỡ chữ UI tối thiểu 18 px; tùy chọn **Chữ lớn (×1.25)**. Có **Bảng màu dễ phân biệt**.
+
+## Headless, kiểm thử, benchmark, soak
+
+Cấu hình Contract 1.3 ở [game.contract.json](game.contract.json).
 
 ```sh
+node --test                                                    # toàn bộ test
 node src/headless.mjs --seed 1201 --night 1 --scenario docs/proof/phase-3/lanterns.scenario.json --inputs docs/proof/phase-3/lanterns.inputs.json --ticks 120 --out lanterns.jsonl
-node --test
+node src/bench.mjs --seed 42 --duration 30 --out bench.json    # cần Chrome/Edge, mở cửa sổ 1280x720
+node --expose-gc src/soak.mjs --seed 7 --nights 10 --out soak.json
 ```
 
-Xem [bằng chứng Phase 3](docs/proof/phase-3/README.md), [ADR dầu đèn](docs/phase-3/adr-001-lantern-fuel.md) và [changelog](CHANGELOG.md).
+**Bench**: cảnh chuẩn 200 Bóng Mực wander, 100 đom đóm, 3 đèn sáng fuel 100, camera bay vòng bán kính 30 m, cao 15 m, 15 s một vòng; 3 s đầu khởi động. Render là Canvas 2D, trình duyệt không cho tắt vsync từ trang web nên `vsync_off` là `false` và FPS bị chặn ở tần số quét màn hình. Bản web không đọc được RSS của tiến trình trình duyệt từ trang, nên `peak_mem_mb` là `null`. Biến `BENCH_HEADLESS=1` chạy Chrome ẩn, `BENCH_SOFTWARE=1` tắt GPU.
 
+**Soak**: một Đêm chạy khởi động bỏ đi để ổn định JIT, sau đó đo RSS (có `gc()`) sau khi tải Đêm đầu và sau Đêm cuối. Heap giữ phẳng ở khoảng 3.7 MB, RSS chỉ dao động do bộ cấp phát.
+
+Kết quả tự đo: [bench.json](bench.json), [soak.json](soak.json). Bằng chứng: [Phase 4](docs/proof/phase-4/README.md), [Phase 3](docs/proof/phase-3/README.md). Lịch sử: [CHANGELOG](CHANGELOG.md). Nguồn asset: [CREDITS](CREDITS.md). Giấy phép: [LICENSE](LICENSE). Retro: [docs/retro.md](docs/retro.md).
 ## Sáng tạo của tôi
 
 Bản đồ nhỏ chỉ vị trí Mây, hướng camera và các Đèn Lồng Lớn. Mỗi đèn đã thắp tạo một quầng sáng vàng cam, hắt lên Mây và cây đá ở gần. Ánh sáng giảm dần trong phạm vi 8 m. Bóng Mực có áo choàng rủ thành dải mực và đôi mắt chuyển vàng khi bị choáng. Bài kiểm thử Canvas và kiểm tra tính tất định của JSONL nằm trong [bộ kiểm thử Phase 1](test/).
