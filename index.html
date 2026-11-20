@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0b1824">
+    <meta name="description" content="Cùng Mây gom đom đóm và thắp sáng Đảo Đèn Lồng.">
+    <title>Đảo Đèn Lồng</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script type="module" src="/src/game.mjs"></script>
+  </head>
+  <body>
+    <main class="game-shell" aria-labelledby="title">
+      <canvas id="island" tabindex="0" aria-label="Màn chơi 3D Đảo Đèn Lồng"></canvas>
+      <header class="heading">
+        <h1 id="title">Đảo Đèn Lồng</h1>
+        <p id="night-name">Đêm 1 · Đảo Bến</p>
+      </header>
+      <dl class="stats" aria-label="Trạng thái trò chơi">
+        <div><dt><span class="stat-icon lantern-icon" aria-hidden="true"></span> Đèn</dt><dd id="lit">0 / 5</dd></div>
+        <div><dt><span class="heart" aria-hidden="true">♥</span> Ngọn Lửa</dt><dd id="health">3 / 3</dd></div>
+        <div><dt>Còn lại</dt><dd id="timer">5:00</dd></div>
+        <div><dt>Điểm</dt><dd id="score">0</dd></div>
+      </dl>
+      <p class="prompt" id="prompt" role="status" hidden></p>
+      <p class="feedback" id="feedback" role="status" hidden></p>
+      <div class="mote-hud"><div id="mote-bar" aria-hidden="true"></div><span id="flies" aria-label="Đom đóm">0 / 10</span></div>
+      <div class="abilities" aria-label="Kỹ năng">
+        <span><kbd>Shift</kbd><span id="dash-cd">Lướt</span></span>
+        <span><kbd>Q</kbd><span id="pulse-cd">Tỏa sáng</span></span>
+        <span id="charm-status" hidden></span>
+      </div>
+      <footer class="controls" aria-label="Điều khiển">
+        <span><kbd>WASD</kbd> / <kbd>↑↓←→</kbd> Di chuyển</span>
+        <span><kbd>Space</kbd> Nhảy</span>
+        <span><kbd>J</kbd> <kbd>L</kbd> Xoay camera</span>
+        <span><kbd>E</kbd> Nạp đèn</span>
+        <span><kbd>Q</kbd> Tỏa sáng</span>
+        <span><kbd>Shift</kbd> Lướt</span>
+        <button id="pause" type="button" aria-keyshortcuts="P">Tạm dừng (P)</button>
+        <button id="restart" type="button">Chơi lại</button>
+      </footer>
+      <div id="result" class="result" role="region" aria-labelledby="result-title" hidden>
+        <div class="result-card">
+          <h2 id="result-title"></h2>
+          <p id="result-detail"></p>
+          <button id="play-again" type="button">Chơi lại</button>
+          <button id="next-night" type="button" hidden>Đêm kế tiếp</button>
+          <button id="result-menu" type="button">Về menu</button>
+        </div>
+      </div>
+      <section id="stage" class="result" aria-labelledby="stage-title">
+        <div class="result-card">
+          <h2 id="stage-title">Đảo Đèn Lồng</h2>
+          <p id="stage-text">Cùng Mây thắp đèn qua ba đêm.</p>
+          <button id="stage-action" type="button">Bắt đầu</button>
+          <button id="stage-settings" type="button">Cài đặt</button>
+        </div>
+      </section>
+      <section id="pause-panel" class="result" aria-labelledby="pause-title" hidden>
+        <div class="result-card">
+          <h2 id="pause-title">Tạm dừng</h2>
+          <p>Nhấn Esc hoặc P để tiếp tục.</p>
+          <div class="menu-actions">
+            <button id="resume" type="button">Tiếp tục</button>
+            <button id="pause-replay" type="button">Chơi lại Đêm</button>
+            <button id="pause-settings" type="button">Cài đặt</button>
+            <button id="pause-menu" type="button">Về menu</button>
+          </div>
+        </div>
+      </section>
+      <section id="settings" class="result" aria-labelledby="settings-title" hidden>
+        <div class="result-card">
+          <h2 id="settings-title">Cài đặt</h2>
+          <label>Âm lượng <input id="volume" type="range" min="0" max="100" value="45"></label>
+          <label>Độ nhạy chuột <input id="sensitivity" type="range" min="10" max="200" value="75"></label>
+          <button id="settings-close" type="button">Quay lại</button>
+        </div>
+      </section>
+      <noscript><p class="prompt">Bật JavaScript để chơi Đảo Đèn Lồng.</p></noscript>
+    </main>
+  </body>
+</html>

@@ -1,4 +1,46 @@
-# Day 12 — AI SDLC: Đảo Đèn Lồng
+# Đảo Đèn Lồng · Ba Đêm
+
+Điều khiển Mây gom đom đóm, thắp đèn qua ba Đêm và dùng ánh sáng để tránh Bóng Mực. Phase 2 thêm Đôi Đảo Tre và Đảo Tháp Chuông, cùng Gió Lạc, Bùa Gió và lướt. [Đặc tả Phase 2](docs/phase-2/spec.md)
+
+## Cài đặt và chơi
+
+Cần Node.js 22 trở lên và trình duyệt hỗ trợ Canvas 2D. Game chạy trên macOS/Linux với Node.js, không cần cài gói npm. Từ thư mục repo, chạy rồi mở `http://127.0.0.1:3000`.
+
+```sh
+node src/server.mjs
+```
+
+| Điều khiển | Hành động |
+|---|---|
+| `WASD` hoặc phím mũi tên | Di chuyển theo camera. |
+| `Space` | Nhảy. |
+| `J` / `L` hoặc kéo chuột | Xoay camera. |
+| `Shift` | Lướt. Bùa Gió bỏ thời gian hồi chiêu. |
+| `E` | Nạp đom đóm vào đèn gần nhất. Đèn sáng khi nhận đủ 10, có thể nạp nhiều lần. |
+| `Q` | Tốn 3 đom đóm để Tỏa Sáng. Hiệu ứng đẩy lùi và làm choáng Bóng Mực, đồng thời có thể xua Gió Lạc. |
+| `Esc` / `P` | Mở menu tạm dừng. Khi chuyển sang tab khác, game tự tạm dừng. |
+| **Chơi lại Đêm** | Bắt đầu lại Đêm hiện tại. |
+
+Mây mang tối đa 10 đom đóm, bắt đầu mỗi Đêm với 3 Ngọn Lửa và có lần lượt 300, 330 và 360 giây. Đèn đã thắp tạo vùng an toàn 6 m. Trúng Bóng Mực làm rơi một nửa số đang mang, còn rơi khỏi đảo làm mất toàn bộ. Vượt cầu hoặc dùng bục nhảy ở Đêm 2. Đêm 3 có dốc, bục nhảy lên tầng cao và gió mạnh.
+
+**Điểm** mỗi đom đóm nạp +10, mỗi đèn thắp +100 và mỗi Bóng Mực trúng Tỏa Sáng +5. Khi thắng, mỗi giây nguyên còn lại +2 và mỗi Ngọn Lửa còn lại +50. Tổng điểm game cộng điểm của các Đêm đã thắng.
+
+## Headless và kiểm thử
+
+Cấu hình Contract 1.1 ở [game.contract.json](game.contract.json). Tham số `--night` nhận 1, 2 hoặc 3. Ví dụ sau chạy toàn Đêm 3 rồi chạy bộ kiểm thử.
+
+```sh
+node src/headless.mjs --seed 1201 --night 3 --scenario docs/proof/phase-2/full-night.scenario.json --ticks 21600 --out phase-2-full.jsonl
+node --test
+```
+
+Xem [bằng chứng Phase 2](docs/proof/phase-2/README.md), [đặc tả và giả định](docs/phase-2/spec.md) và [bằng chứng Phase 1](docs/proof/phase-1/README.md).
+
+## Sáng tạo của tôi
+
+Bản đồ nhỏ chỉ vị trí Mây, hướng camera và các Đèn Lồng Lớn. Mỗi đèn đã thắp tạo một quầng sáng vàng cam, hắt lên Mây và cây đá ở gần. Ánh sáng giảm dần trong phạm vi 8 m. Bóng Mực có áo choàng rủ thành dải mực và đôi mắt chuyển vàng khi bị choáng. Bài kiểm thử Canvas và kiểm tra tính tất định của JSONL nằm trong [bộ kiểm thử Phase 1](test/).
+
+## Tài liệu lab Day 12
 
 > **Cá nhân** (1 người / 1 MSSV) · Áp dụng SDLC cùng AI để xây một **game 3D** qua **4 phase**, từ yêu cầu ban đầu tới bản phát hành.
 > **Lab board + trợ giảng:** **[Đảo Đèn Lồng Lab](https://claude.ai/artifact/Q1RYyv1dxjUczzCbd2ZnoW)**

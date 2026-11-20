@@ -1,0 +1,9 @@
+{
+  "player": { "carried": 2, "flames": 2 },
+  "random_motes": false,
+  "random_shades": false,
+  "shades": [
+    { "id": "Snear", "pos": [3, 1, 0] },
+    { "id": "Sedge", "pos": [6, 1, 0] }
+  ]
+}

@@ -1,0 +1,72 @@
+TAP version 13
+# [1120/154203.803:ERROR:third_party\\crashpad\\crashpad\\util\\win\\registration_protocol_win.cc:108] CreateFile: Access is denied. (0x5)
+# Subtest: manifest khai đúng tuning dùng trong gameplay
+ok 1 - manifest khai đúng tuning dùng trong gameplay
+  ---
+  duration_ms: 2.2569
+  type: 'test'
+  ...
+# Subtest: tick 0, số bước chính xác, camera yaw, chuẩn hóa đường chéo và nhảy cạnh lên
+ok 2 - tick 0, số bước chính xác, camera yaw, chuẩn hóa đường chéo và nhảy cạnh lên
+  ---
+  duration_ms: 107.0424
+  type: 'test'
+  ...
+# Subtest: nạp từng phần, giữ nút không lặp, khoảng cách theo XZ và nắp sức chứa
+ok 3 - nạp từng phần, giữ nút không lặp, khoảng cách theo XZ và nắp sức chứa
+  ---
+  duration_ms: 132.1071
+  type: 'test'
+  ...
+# Subtest: pulse tốn ánh sáng, đẩy và choáng một Bóng Mực trước khi hết máu
+ok 4 - pulse tốn ánh sáng, đẩy và choáng một Bóng Mực trước khi hết máu
+  ---
+  duration_ms: 137.5808
+  type: 'test'
+  ...
+# Subtest: vùng an toàn của đèn sáng, cooldown pulse và trạng thái khởi tạo không có điểm
+ok 5 - vùng an toàn của đèn sáng, cooldown pulse và trạng thái khởi tạo không có điểm
+  ---
+  duration_ms: 3.1905
+  type: 'test'
+  ...
+# Subtest: đi hết Đêm 1 từ map mặc định, đủ 5 đèn và đúng điểm, JSONL tất định
+ok 6 - đi hết Đêm 1 từ map mặc định, đủ 5 đèn và đúng điểm, JSONL tất định
+  ---
+  duration_ms: 297.6999
+  type: 'test'
+  ...
+# Subtest: bình minh, snapshot mặc định và mã thoát cho JSON sai
+ok 7 - bình minh, snapshot mặc định và mã thoát cho JSON sai
+  ---
+  duration_ms: 322.4216
+  type: 'test'
+  ...
+# Subtest: Bóng Mực sinh theo seed với ID duy nhất và tắt được bằng scenario
+ok 8 - Bóng Mực sinh theo seed với ID duy nhất và tắt được bằng scenario
+  ---
+  duration_ms: 149.3223
+  type: 'test'
+  ...
+# [1120/154203.824:ERROR:third_party\\crashpad\\crashpad\\util\\win\\registration_protocol_win.cc:108] CreateFile: Access is denied. (0x5)
+# Subtest: Canvas vẽ cảnh 3D với camera quay, người chơi nhảy và đèn sáng
+ok 9 - Canvas vẽ cảnh 3D với camera quay, người chơi nhảy và đèn sáng
+  ---
+  duration_ms: 80.0013
+  type: 'test'
+  ...
+# Subtest: đường vào game nhận phím, cập nhật HUD, hiển thị thua và chơi lại
+ok 10 - đường vào game nhận phím, cập nhật HUD, hiển thị thua và chơi lại
+  ---
+  duration_ms: 20.7585
+  type: 'test'
+  ...
+1..10
+# tests 10
+# suites 0
+# pass 10
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1321.0984

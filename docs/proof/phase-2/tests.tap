@@ -1,0 +1,151 @@
+TAP version 13
+# [1120/161246.708:ERROR:third_party\\crashpad\\crashpad\\util\\win\\registration_protocol_win.cc:108] CreateFile: Access is denied. (0x5)
+# Subtest: manifest khai đúng tuning dùng trong gameplay
+ok 1 - manifest khai đúng tuning dùng trong gameplay
+  ---
+  duration_ms: 3.0955
+  type: 'test'
+  ...
+# Subtest: tick 0, số bước chính xác, camera yaw, chuẩn hóa đường chéo và nhảy cạnh lên
+ok 2 - tick 0, số bước chính xác, camera yaw, chuẩn hóa đường chéo và nhảy cạnh lên
+  ---
+  duration_ms: 137.5751
+  type: 'test'
+  ...
+# Subtest: nạp từng phần, giữ nút không lặp, biên nhặt XZ và độ cao, giới hạn sức chứa
+ok 3 - nạp từng phần, giữ nút không lặp, biên nhặt XZ và độ cao, giới hạn sức chứa
+  ---
+  duration_ms: 119.8766
+  type: 'test'
+  ...
+# Subtest: pulse tốn ánh sáng, đẩy và choáng một Bóng Mực trước khi hết máu
+ok 4 - pulse tốn ánh sáng, đẩy và choáng một Bóng Mực trước khi hết máu
+  ---
+  duration_ms: 111.5562
+  type: 'test'
+  ...
+# Subtest: vùng an toàn của đèn sáng, cooldown pulse và trạng thái khởi tạo không có điểm
+ok 5 - vùng an toàn của đèn sáng, cooldown pulse và trạng thái khởi tạo không có điểm
+  ---
+  duration_ms: 4.0353
+  type: 'test'
+  ...
+# Subtest: thắp đèn cuối Đêm 1, tính điểm theo Contract 1.1 và JSONL tất định
+ok 6 - thắp đèn cuối Đêm 1, tính điểm theo Contract 1.1 và JSONL tất định
+  ---
+  duration_ms: 257.4824
+  type: 'test'
+  ...
+# Subtest: bình minh, snapshot mặc định và mã thoát cho JSON sai
+ok 7 - bình minh, snapshot mặc định và mã thoát cho JSON sai
+  ---
+  duration_ms: 342.6138
+  type: 'test'
+  ...
+# Subtest: Bóng Mực sinh theo seed với ID duy nhất và tắt được bằng scenario
+ok 8 - Bóng Mực sinh theo seed với ID duy nhất và tắt được bằng scenario
+  ---
+  duration_ms: 124.4947
+  type: 'test'
+  ...
+# [1120/161246.726:ERROR:third_party\\crashpad\\crashpad\\util\\win\\registration_protocol_win.cc:108] CreateFile: Access is denied. (0x5)
+# Subtest: ba bản đồ chuẩn, tọa độ đèn, vách đảo, cầu và cao độ tầng
+ok 9 - ba bản đồ chuẩn, tọa độ đèn, vách đảo, cầu và cao độ tầng
+  ---
+  duration_ms: 349.3394
+  type: 'test'
+  ...
+# Subtest: pause giữ sim_tick, TTL, hồi chiêu và thời gian, resume tiếp tục mô phỏng
+ok 10 - pause giữ sim_tick, TTL, hồi chiêu và thời gian, resume tiếp tục mô phỏng
+  ---
+  duration_ms: 137.9599
+  type: 'test'
+  ...
+# Subtest: bục nhảy Đêm 2 giữ vận tốc phóng và vượt biển mây, cầu có thể đi bộ
+ok 11 - bục nhảy Đêm 2 giữ vận tốc phóng và vượt biển mây, cầu có thể đi bộ
+  ---
+  duration_ms: 251.194
+  type: 'test'
+  ...
+# Subtest: Đêm 3 lên dốc, bục đưa lên tầng 2, đi khỏi gờ rơi về tầng dưới
+ok 12 - Đêm 3 lên dốc, bục đưa lên tầng 2, đi khỏi gờ rơi về tầng dưới
+  ---
+  duration_ms: 465.1236
+  type: 'test'
+  ...
+# Subtest: rơi khỏi bờ làm mất Ngọn Lửa và báo số đom đóm bị mất
+ok 13 - rơi khỏi bờ làm mất Ngọn Lửa và báo số đom đóm bị mất
+  ---
+  duration_ms: 132.1251
+  type: 'test'
+  ...
+# Subtest: lướt chuẩn 14 m/s trong 12 tick, bùa bỏ hồi chiêu, bùa hồi sau 2700 tick
+ok 14 - lướt chuẩn 14 m/s trong 12 tick, bùa bỏ hồi chiêu, bùa hồi sau 2700 tick
+  ---
+  duration_ms: 335.811
+  type: 'test'
+  ...
+# Subtest: Gió Lạc cướp trong vùng đèn khi bất tử, Tỏa Sáng thu hồi đom đóm
+ok 15 - Gió Lạc cướp trong vùng đèn khi bất tử, Tỏa Sáng thu hồi đom đóm
+  ---
+  duration_ms: 303.6093
+  type: 'test'
+  ...
+# Subtest: Gió Lạc sinh từ tick 1200, Bóng Mực sinh theo lịch, gió Đêm 3 chạy đúng 5 s
+ok 16 - Gió Lạc sinh từ tick 1200, Bóng Mực sinh theo lịch, gió Đêm 3 chạy đúng 5 s
+  ---
+  duration_ms: 471.3944
+  type: 'test'
+  ...
+# Subtest: đom đóm rơi hết TTL, Bóng Mực đang choáng vẫn tính điểm khi trúng thêm
+ok 17 - đom đóm rơi hết TTL, Bóng Mực đang choáng vẫn tính điểm khi trúng thêm
+  ---
+  duration_ms: 109.7383
+  type: 'test'
+  ...
+# Subtest: 20 đom đóm ban đầu ở điểm riêng biệt và sinh thêm từ tick 240
+ok 18 - 20 đom đóm ban đầu ở điểm riêng biệt và sinh thêm từ tick 240
+  ---
+  duration_ms: 156.8888
+  type: 'test'
+  ...
+# Subtest: lướt trên không giữ cao độ đủ 12 tick và Tỏa Sáng xét tâm 3D
+ok 19 - lướt trên không giữ cao độ đủ 12 tick và Tỏa Sáng xét tâm 3D
+  ---
+  duration_ms: 113.5264
+  type: 'test'
+  ...
+# Subtest: hit tạo vành đom đóm rơi, Bóng Mực lùi 2 m và đèn mới sáng đẩy Bóng ra mép
+ok 20 - hit tạo vành đom đóm rơi, Bóng Mực lùi 2 m và đèn mới sáng đẩy Bóng ra mép
+  ---
+  duration_ms: 272.0617
+  type: 'test'
+  ...
+# Subtest: đèn cuối thắng đúng tick bình minh ở cả ba Đêm, hết Ngọn Lửa ưu tiên thua
+ok 21 - đèn cuối thắng đúng tick bình minh ở cả ba Đêm, hết Ngọn Lửa ưu tiên thua
+  ---
+  duration_ms: 746.2319
+  type: 'test'
+  ...
+# [1120/161246.751:ERROR:third_party\\crashpad\\crashpad\\util\\win\\registration_protocol_win.cc:108] CreateFile: Access is denied. (0x5)
+# Subtest: Canvas vẽ cảnh 3D với camera quay, người chơi nhảy và đèn sáng
+ok 22 - Canvas vẽ cảnh 3D với camera quay, người chơi nhảy và đèn sáng
+  ---
+  duration_ms: 116.066
+  type: 'test'
+  ...
+# Subtest: đường vào game nhận phím, cập nhật HUD, hiển thị thua và chơi lại
+ok 23 - đường vào game nhận phím, cập nhật HUD, hiển thị thua và chơi lại
+  ---
+  duration_ms: 136.2658
+  type: 'test'
+  ...
+1..23
+# tests 23
+# suites 0
+# pass 23
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 4066.4366

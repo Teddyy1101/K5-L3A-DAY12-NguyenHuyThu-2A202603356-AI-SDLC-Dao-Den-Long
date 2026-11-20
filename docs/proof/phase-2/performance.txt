@@ -1,0 +1,8 @@
+Headless Phase 2: Night 3, seed 1201, 21,600 ticks, snapshots every 10.
+Duration: 1.071 s on Windows with Node.js 24.22.1, including process startup.
+Final record: {"type":"end","ticks":21600,"state":"lost","score":0}
+
+Chrome headless on Windows, 1280 x 720, device pixel ratio 1, GPU disabled.
+Night 1 actual game page: 52.33 FPS, 184 animation frames.
+Night 2 bridge renderer and simulation: 32.31 FPS, 91 animation frames.
+Night 3 ramp renderer and simulation: 35.00 FPS, 98 animation frames.
